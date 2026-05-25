@@ -19,7 +19,11 @@ body{font-family:'DM Sans','Helvetica Neue',sans-serif;background:#0e0e0f;color:
 .nav-item:hover{background:var(--bg3);color:var(--text)}
 .nav-item.active{background:var(--bg4);color:var(--text);border-color:var(--border2)}
 .nav-item svg{width:16px;height:16px;min-width:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.mobile-topbar{display:none;align-items:center;justify-content:flex-start;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.mobile-topbar .menu-btn{width:38px;height:30px;display:flex;flex-direction:column;justify-content:space-between;background:none;border:1px solid var(--border2);border-radius:10px;padding:6px;cursor:pointer}
+.mobile-topbar .menu-btn span{display:block;height:3px;width:100%;background:var(--text);border-radius:999px}
+.mobile-topbar .menu-btn:focus{outline:2px solid var(--accent)}
+.mobile-topbar .brand-mobile{font-size:13px;font-weight:600;color:var(--accent)}
 .mobile-topbar .btn{border-radius:999px}
 .badge{margin-left:auto;background:var(--accent);color:#0e0e0f;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px}
 .badge-g{background:var(--accent3)}
@@ -231,7 +235,7 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
 </nav>
 
 <main id="main">
-  <div class="mobile-topbar"><button class="btn btn-sm" id="sidebar-toggle" onclick="toggleSidebar()">☰ Menú</button></div>
+  <div class="mobile-topbar"><button class="menu-btn" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú"><span></span><span></span><span></span></button><div class="brand-mobile">SocialDesk</div></div>
 
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
@@ -467,13 +471,15 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
         </div>
       </div>
       <div class="form-group"><label>Tono</label>
-        <div style="display:flex;flex-wrap:wrap;gap:6px" id="copy-tone-opts">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center" id="copy-tone-opts">
           <span class="tone-btn selected" data-tone="auto">Auto</span>
           <span class="tone-btn" data-tone="Informal y cercano">Cercano</span>
           <span class="tone-btn" data-tone="Profesional">Profesional</span>
           <span class="tone-btn" data-tone="Poético y evocador">Poético</span>
           <span class="tone-btn" data-tone="Divertido">Divertido</span>
+          <span class="tone-btn add-tone-btn" onclick="showCustomCopyToneInput()">+ Agregar</span>
         </div>
+        <input type="text" id="copy-tone-custom" class="form-input" style="display:none;margin-top:8px;width:100%" placeholder="Escribe un tono personalizado y presiona Enter" onkeydown="handleCopyToneInputKey(event)">
       </div>
       <div class="form-group"><label>Describe el post</label><textarea id="copy-prompt" placeholder="Ej: Nuevo plato de temporada..."></textarea></div>
       <div class="form-group"><label>Instrucciones adicionales</label><input type="text" id="copy-extra" placeholder="CTA, precio, menciones..."></div>
@@ -651,7 +657,9 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
           <span class="tone-btn" data-tone="Divertido y desenfadado" onclick="toggleClientTone(this)">Divertido y desenfadado</span>
           <span class="tone-btn" data-tone="Elegante y refinado" onclick="toggleClientTone(this)">Elegante y refinado</span>
           <span class="tone-btn" data-tone="Coloquial y energético" onclick="toggleClientTone(this)">Coloquial y energético</span>
+          <span class="tone-btn add-tone-btn" onclick="showCustomClientToneInput()">+ Agregar</span>
         </div>
+        <input type="text" id="c-tone-custom" class="form-input" style="display:none;margin-top:8px;width:100%" placeholder="Escribe un tono personalizado y presiona Enter" onkeydown="handleClientToneInputKey(event)">
         <div style="font-size:11px;color:var(--muted);margin-top:6px">Selecciona uno o varios tonos para este cliente.</div>
       </div>
       <div class="form-group"><label>Frecuencia</label>
@@ -1268,18 +1276,23 @@ function resetChecklist(){if(!confirm('¿Reiniciar checklist?'))return;const c=S
 // ============================================================
 document.querySelectorAll('#copy-net-pills .net-pill').forEach(p=>p.addEventListener('click',function(){document.querySelectorAll('#copy-net-pills .net-pill').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
 document.querySelectorAll('#copy-format-opts .format-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#copy-format-opts .format-btn').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
-document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(b=>b.addEventListener('click',function(){
-  if (this.dataset.tone==='auto') {
+document.getElementById('copy-tone-opts').addEventListener('click',function(e){
+  const el=e.target;
+  if(!el.classList.contains('tone-btn')||el.classList.contains('add-tone-btn'))return;
+  if(el.dataset.tone==='auto'){
     document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(x=>x.classList.remove('selected'));
-    this.classList.add('selected');
+    el.classList.add('selected');
     return;
   }
-  this.classList.toggle('selected');
+  el.classList.toggle('selected');
   document.querySelector('#copy-tone-opts .tone-btn[data-tone="auto"]').classList.remove('selected');
-  if (![...document.querySelectorAll('#copy-tone-opts .tone-btn.selected')].some(x=>x.dataset.tone!=='auto')) {
+  if(![...document.querySelectorAll('#copy-tone-opts .tone-btn.selected')].some(x=>x.dataset.tone!=='auto')){
     document.querySelector('#copy-tone-opts .tone-btn[data-tone="auto"]').classList.add('selected');
   }
-}));
+});
+function showCustomCopyToneInput(){const input=document.getElementById('copy-tone-custom');input.style.display='block';input.focus();}
+function addCustomCopyTone(){const input=document.getElementById('copy-tone-custom');const value=input.value.trim();if(!value)return;const opts=document.getElementById('copy-tone-opts');const existing=[...opts.querySelectorAll('.tone-btn')].map(x=>x.dataset.tone);if(existing.includes(value)){const existed=opts.querySelector(`.tone-btn[data-tone="${value}"]`);if(existed)existed.classList.add('selected');input.value='';input.style.display='none';return;}const btn=document.createElement('span');btn.className='tone-btn selected';btn.dataset.tone=value;btn.textContent=value;opts.insertBefore(btn,opts.querySelector('.add-tone-btn'));document.querySelector('#copy-tone-opts .tone-btn[data-tone="auto"]').classList.remove('selected');input.value='';input.style.display='none';}
+function handleCopyToneInputKey(e){if(e.key==='Enter'){e.preventDefault();addCustomCopyTone();}}
 async function generateCopy() {
   const cName=document.getElementById('copy-client').value; const client=S.clients.find(c=>c.name===cName);
   const network=document.querySelector('#copy-net-pills .net-pill.selected')?.dataset.net||'Instagram';
@@ -1338,11 +1351,16 @@ function deleteCurrentIdea(){const id=document.getElementById('idea-detail-modal
 // ============================================================
 function openClientModal(editId) {
   S.editingClientId=editId||null;
-  if(editId){const c=S.clients.find(x=>x.id===editId);document.getElementById('client-modal-title').textContent='Editar cliente';document.getElementById('c-name').value=c.name;document.getElementById('c-handle').value=c.handle||'';document.getElementById('c-sector').value=c.sector||'';document.getElementById('c-web').value=c.web||'';document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.toggle('selected',(Array.isArray(c.tone)?c.tone:[c.tone]).includes(p.dataset.tone)));document.getElementById('c-freq').value=c.freq||'3-4 veces por semana';document.getElementById('c-colors').value=c.colors||'';document.getElementById('c-hashtags').value=c.hashtags||'';document.getElementById('c-notes').value=c.notes||'';document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.toggle('selected',(c.networks||[]).includes(p.dataset.net)));}
-  else{document.getElementById('client-modal-title').textContent='Nuevo cliente';['c-name','c-handle','c-sector','c-web','c-colors','c-hashtags','c-notes'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.remove('selected'));document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.remove('selected'));}
+  if(editId){const c=S.clients.find(x=>x.id===editId);document.getElementById('client-modal-title').textContent='Editar cliente';document.getElementById('c-name').value=c.name;document.getElementById('c-handle').value=c.handle||'';document.getElementById('c-sector').value=c.sector||'';document.getElementById('c-web').value=c.web||'';const tones=Array.isArray(c.tone)?c.tone:[c.tone];tones.filter(Boolean).forEach(t=>{const existing=[...document.querySelectorAll('#c-tone-opts .tone-btn')].map(x=>x.dataset.tone);if(!existing.includes(t)){createClientToneButton(t)}});document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.toggle('selected',tones.includes(p.dataset.tone)));document.getElementById('c-freq').value=c.freq||'3-4 veces por semana';document.getElementById('c-colors').value=c.colors||'';document.getElementById('c-hashtags').value=c.hashtags||'';document.getElementById('c-notes').value=c.notes||'';document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.toggle('selected',(c.networks||[]).includes(p.dataset.net)));document.getElementById('c-tone-custom').style.display='none';}
+  else{document.getElementById('client-modal-title').textContent='Nuevo cliente';['c-name','c-handle','c-sector','c-web','c-colors','c-hashtags','c-notes'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.remove('selected'));document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.remove('selected'));document.getElementById('c-tone-custom').style.display='none';}
   document.getElementById('client-modal').classList.add('open');
 }
 function toggleNet(el){el.classList.toggle('selected');}
+function toggleClientTone(el){if(!el.dataset.tone)return;el.classList.toggle('selected');}
+function showCustomClientToneInput(){const input=document.getElementById('c-tone-custom');input.style.display='block';input.focus();}
+function addCustomClientTone(){const input=document.getElementById('c-tone-custom');const value=input.value.trim();if(!value)return;createClientToneButton(value);input.value='';input.style.display='none';}
+function handleClientToneInputKey(e){if(e.key==='Enter'){e.preventDefault();addCustomClientTone();}}
+function createClientToneButton(value){const opts=document.getElementById('c-tone-opts');if([...opts.querySelectorAll('.tone-btn')].map(x=>x.dataset.tone).includes(value)){const existing=opts.querySelector(`.tone-btn[data-tone="${value}"]`);if(existing)existing.classList.add('selected');return;}const btn=document.createElement('span');btn.className='tone-btn selected';btn.dataset.tone=value;btn.textContent=value;btn.onclick=function(){toggleClientTone(this)};opts.insertBefore(btn,opts.querySelector('.add-tone-btn'));}
 function saveClient() {
   const name=document.getElementById('c-name').value.trim(); if(!name){alert('Nombre obligatorio');return;}
   const nets=[...document.querySelectorAll('#c-nets .net-pill.selected')].map(p=>p.dataset.net);
