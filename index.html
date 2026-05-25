@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SocialDesk — Digital Marketing Tool</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Helvetica Neue',sans-serif;background:#0e0e0f;color:#e8e4dc;min-height:100vh;font-size:14px}
+:root{--bg:#0e0e0f;--bg2:#161618;--bg3:#1e1e21;--bg4:#26262a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#e8e4dc;--muted:#7a7870;--accent:#c8a96e;--accent2:#8b6fd4;--accent3:#5fb89a;--danger:#e06060;--r:10px;--rsm:6px}
+#app{display:flex;min-height:100vh}
+#sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.logo h1{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.logo p{font-size:11px;color:var(--muted);margin-top:2px}
+.nav-section{padding:0 12px;margin-bottom:8px}
+.nav-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:0 8px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rsm);cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s;border:1px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg4);color:var(--text);border-color:var(--border2)}
+.nav-item svg{width:16px;height:16px;min-width:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.badge{margin-left:auto;background:var(--accent);color:#0e0e0f;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px}
+.badge-g{background:var(--accent3)}
+#main{flex:1;overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:28px 32px;max-width:980px}
+.page.active{display:block}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.page-title{font-size:20px;font-weight:500}
+.page-title span{color:var(--muted);font-size:13px;font-weight:400;margin-left:8px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--rsm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text);transition:all .15s}
+.btn:hover{background:var(--bg4);border-color:rgba(255,255,255,.18)}
+.btn-accent{background:var(--accent);color:#0e0e0f;border-color:var(--accent)}
+.btn-accent:hover{background:#d4b87a}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{border-color:var(--danger);color:var(--danger)}
+.btn-danger:hover{background:rgba(224,96,96,.1)}
+.btn-seo{background:rgba(95,184,154,.15);color:var(--accent3);border-color:rgba(95,184,154,.3)}
+.btn-seo:hover{background:rgba(95,184,154,.25)}
+input,textarea,select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:9px 12px;font-size:13px;font-family:inherit;width:100%;outline:none;transition:border .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px}
+select option{background:var(--bg3)}
+label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+.form-group{margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:500}
+.tag{font-size:11px;padding:2px 8px;border-radius:12px;background:var(--bg4);color:var(--muted);border:1px solid var(--border)}
+.tag.accent{background:rgba(200,169,110,.15);color:var(--accent);border-color:rgba(200,169,110,.3)}
+.tag.seo{background:rgba(95,184,154,.12);color:var(--accent3);border-color:rgba(95,184,154,.25)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:16px;font-weight:500}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty p{font-size:13px;margin-top:10px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:500}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.net-pills{display:flex;gap:5px;flex-wrap:wrap}
+.net-pill{font-size:11px;padding:3px 9px;border-radius:12px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .1s}
+.net-pill.ig{background:rgba(180,90,200,.15);color:#c570e0;border-color:rgba(180,90,200,.3)}
+.net-pill.fb{background:rgba(60,110,220,.15);color:#6090e0;border-color:rgba(60,110,220,.3)}
+.net-pill.tt{background:rgba(40,200,200,.12);color:#50d0c8;border-color:rgba(40,200,200,.25)}
+.net-pill.tw{background:rgba(100,180,250,.12);color:#70b8f8;border-color:rgba(100,180,250,.25)}
+.net-pill.li{background:rgba(60,140,200,.12);color:#60a0d0;border-color:rgba(60,140,200,.25)}
+.net-pill.selected{outline:2px solid currentColor}
+.tone-btn,.format-btn{padding:5px 12px;font-size:12px;border-radius:20px;cursor:pointer;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);transition:all .1s}
+.format-btn{border-radius:6px}
+.tone-btn.selected{background:var(--accent);color:#0e0e0f;border-color:var(--accent);font-weight:500}
+.format-btn.selected{background:rgba(139,111,212,.2);color:var(--accent2);border-color:rgba(139,111,212,.4);font-weight:500}
+.copy-output{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:14px;font-size:13px;line-height:1.7;min-height:160px;white-space:pre-wrap;color:var(--text)}
+.copy-output.placeholder{color:var(--muted);font-style:italic}
+.copy-actions{display:flex;gap:6px;margin-top:10px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.cal-day-header{background:var(--bg2);padding:8px;text-align:center;font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.cal-cell{background:var(--bg2);min-height:90px;padding:8px;cursor:pointer;transition:background .1s}
+.cal-cell:hover{background:var(--bg3)}
+.cal-date{font-size:12px;font-weight:500;margin-bottom:4px}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
+.ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.idea-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:border .15s}
+.idea-card:hover{border-color:var(--border2)}
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.checklist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.checklist-item:last-child{border-bottom:none}
+.check-box{width:18px;height:18px;min-width:18px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;margin-top:1px}
+.check-box.checked{background:var(--accent3);border-color:var(--accent3)}
+.check-box.checked::after{content:'✓';font-size:11px;color:#0e0e0f;font-weight:700}
+.check-label{font-size:13px;line-height:1.5}
+.check-label.done{text-decoration:line-through;color:var(--muted)}
+.seo-output{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text);min-height:140px}
+.seo-output.placeholder{color:var(--muted);font-style:italic}
+.kw-table{width:100%;border-collapse:collapse}
+.kw-table th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border2)}
+.kw-table td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
+.kw-table tr:last-child td{border-bottom:none}
+.kw-table tr:hover td{background:var(--bg3)}
+.kw-diff{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.kw-diff.low{background:rgba(95,184,154,.2);color:var(--accent3)}
+.kw-diff.med{background:rgba(200,169,110,.2);color:var(--accent)}
+.kw-diff.high{background:rgba(224,96,96,.2);color:var(--danger)}
+.kw-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(95,184,154,.12);color:var(--accent3);border:1px solid rgba(95,184,154,.3);border-radius:16px;font-size:12px;margin:3px}
+.meta-preview{background:#fff;border-radius:var(--rsm);padding:14px;margin-top:12px}
+.mp-url{font-size:12px;color:#1a6f22;margin-bottom:2px}
+.mp-title{font-size:17px;color:#1a0dab;font-weight:400;margin-bottom:4px}
+.mp-desc{font-size:13px;color:#4d5156;line-height:1.5}
+.audit-score{display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg3);border-radius:var(--r);margin-bottom:20px}
+.score-circle{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:3px solid var(--accent3)}
+.score-num{font-size:22px;font-weight:600;line-height:1}
+.score-lbl{font-size:10px;color:var(--muted)}
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.client-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .15s}
+.client-card:hover{border-color:var(--border2)}
+.client-card-top{padding:18px 18px 14px}
+.client-card-name{font-size:15px;font-weight:500;margin-bottom:3px}
+.client-card-handle{font-size:12px;color:var(--muted);margin-bottom:10px}
+.client-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.client-card-bottom{padding:12px 18px;border-top:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
+.seo-pill{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:500}
+.seo-pill.active{background:rgba(95,184,154,.15);color:var(--accent3);border:1px solid rgba(95,184,154,.3)}
+.seo-pill.inactive{background:var(--bg4);color:var(--muted);border:1px solid var(--border)}
+.back-btn{display:flex;align-items:center;gap:8px;margin-bottom:24px;cursor:pointer;color:var(--muted);font-size:13px;transition:color .1s}
+.back-btn:hover{color:var(--text)}
+.client-detail-header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:20px}
+.client-tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:var(--r);border:1px solid var(--border);width:fit-content;margin-bottom:24px}
+.client-tab{padding:7px 18px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:none;font-family:inherit}
+.client-tab.active{background:var(--bg4);color:var(--text);font-weight:500}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.tool-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .15s;text-align:left}
+.tool-card:hover{border-color:var(--accent3);background:var(--bg3)}
+.tool-name{font-size:13px;font-weight:500;margin-bottom:4px;margin-top:10px}
+.tool-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.tool-panel{display:none}
+.tool-panel.active{display:block}
+.tool-back{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:13px;transition:color .1s}
+.tool-back:hover{color:var(--text)}
+.seo-home{display:block}
+.seo-home.hidden{display:none}
+
+/* AI CONFIG */
+.ai-provider-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.ai-provider-card{background:var(--bg3);border:2px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s}
+.ai-provider-card:hover{border-color:var(--border2)}
+.ai-provider-card.selected{border-color:var(--accent3);background:rgba(95,184,154,.05)}
+.ai-provider-name{font-size:13px;font-weight:500;margin-bottom:3px}
+.ai-provider-meta{font-size:11px;color:var(--muted)}
+.ai-status{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:10px}
+.ai-status.ok{background:rgba(95,184,154,.15);color:var(--accent3)}
+.ai-status.error{background:rgba(224,96,96,.15);color:var(--danger)}
+.ai-status.none{background:var(--bg4);color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<nav id="sidebar">
+  <div class="logo"><h1>SocialDesk</h1><p>Digital Marketing Tool</p></div>
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="goTo('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Gestión</div>
+    <div class="nav-item" onclick="goTo('clients')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Clientes <span class="badge" id="clients-count">0</span>
+    </div>
+    <div class="nav-item" onclick="goTo('calendar')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendario
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Herramientas IA</div>
+    <div class="nav-item" onclick="goTo('copy')">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Copy & Captions
+    </div>
+    <div class="nav-item" onclick="goTo('brief')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Brief Visual
+    </div>
+    <div class="nav-item" onclick="goTo('ideas')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+      Banco de Ideas <span class="badge" id="ideas-count">0</span>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Configuración</div>
+    <div class="nav-item" onclick="goTo('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Configuración
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header"><div class="page-title">Dashboard <span id="dash-date"></span></div></div>
+  <div id="ai-alert" style="display:none;background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.3);border-radius:var(--r);padding:14px;margin-bottom:20px;font-size:13px;display:flex;align-items:center;gap:10px">
+    ⚠️ No hay IA configurada. <a href="#" onclick="goTo('settings')" style="color:var(--accent);text-decoration:underline">Configura tu proveedor de IA</a> para usar las herramientas.
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Clientes</div><div class="stat-value" id="stat-clients">0</div><div class="stat-sub">activos</div></div>
+    <div class="stat-card"><div class="stat-label">Posts mes</div><div class="stat-value" id="stat-posts">0</div><div class="stat-sub">en calendario</div></div>
+    <div class="stat-card"><div class="stat-label">Ideas</div><div class="stat-value" id="stat-ideas">0</div><div class="stat-sub">en banco</div></div>
+    <div class="stat-card"><div class="stat-label">Con SEO activo</div><div class="stat-value" id="stat-seo">0</div><div class="stat-sub">clientes</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Próximas publicaciones</div></div>
+      <div id="dash-upcoming"><div class="empty"><p>Sin publicaciones próximas</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Clientes con SEO activo</div></div>
+      <div id="dash-seo"><div class="empty"><p>Ningún cliente tiene SEO activo</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENTS -->
+<div id="page-clients" class="page">
+  <div id="clients-list-view">
+    <div class="page-header">
+      <div class="page-title">Clientes <span id="clients-subtitle"></span></div>
+      <button class="btn btn-accent" onclick="openClientModal()">+ Nuevo cliente</button>
+    </div>
+    <div class="client-grid" id="client-grid">
+      <div class="empty" style="grid-column:1/-1;padding:60px 0"><p>Aún no tienes clientes. Añade el primero.</p></div>
+    </div>
+  </div>
+  <div id="client-detail-view" style="display:none">
+    <div class="back-btn" onclick="backToClients()">← Volver a clientes</div>
+    <div class="client-detail-header" id="client-detail-header"></div>
+    <div class="client-tabs">
+      <button class="client-tab active" onclick="clientTab('info',this)">📋 Ficha</button>
+      <button class="client-tab" onclick="clientTab('seo',this)">🔍 SEO</button>
+      <button class="client-tab" onclick="clientTab('content',this)">📅 Publicaciones</button>
+    </div>
+    <div id="tab-info" class="tab-content active"><div id="client-info-body"></div></div>
+    <div id="tab-seo" class="tab-content">
+      <div class="seo-home" id="seo-home">
+        <div class="card" style="margin-bottom:20px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:15px;font-weight:500;margin-bottom:4px" id="seo-profile-title">Perfil SEO</div>
+              <div style="font-size:12px;color:var(--muted)" id="seo-profile-subtitle"></div>
+            </div>
+            <button class="btn btn-sm" onclick="openSeoConfigModal()">⚙️ Configurar perfil SEO</button>
+          </div>
+          <div id="seo-profile-data"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)" id="seo-kpis"></div>
+        </div>
+        <div class="section-title">Herramientas SEO</div>
+        <div class="tool-grid">
+          <div class="tool-card" onclick="openTool('keywords')"><div style="font-size:22px">🏷️</div><div class="tool-name">Keywords</div><div class="tool-desc">Genera y guarda keywords estratégicas para este cliente</div></div>
+          <div class="tool-card" onclick="openTool('meta')"><div style="font-size:22px">💻</div><div class="tool-name">Metas & Títulos</div><div class="tool-desc">Título SEO y meta descripción con vista previa Google</div></div>
+          <div class="tool-card" onclick="openTool('content')"><div style="font-size:22px">📝</div><div class="tool-name">Contenido SEO</div><div class="tool-desc">Blog, fichas, bios y textos optimizados</div></div>
+          <div class="tool-card" onclick="openTool('local')"><div style="font-size:22px">📍</div><div class="tool-name">SEO Local</div><div class="tool-desc">Google Business, reseñas y keywords locales</div></div>
+          <div class="tool-card" onclick="openTool('social')"><div style="font-size:22px">#️⃣</div><div class="tool-name">SEO Social</div><div class="tool-desc">Bios, hashtags y optimización para redes</div></div>
+          <div class="tool-card" onclick="openTool('checklist')"><div style="font-size:22px">✅</div><div class="tool-name">Checklist SEO</div><div class="tool-desc">Auditoría completa del estado de posicionamiento</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Keywords guardadas</div><button class="btn btn-sm btn-danger" onclick="clearClientKws()">🗑️ Limpiar</button></div>
+          <div id="client-kw-list"></div>
+        </div>
+      </div>
+      <div id="tool-panel-keywords" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← Keywords</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="form-group"><label>Tipo de keywords</label>
+              <select id="kw-type"><option value="general">Generales del sector</option><option value="local">Con intención local</option><option value="longtail">Long tail</option><option value="competencia">Análisis competencia</option><option value="social">Para redes sociales</option></select>
+            </div>
+            <div class="form-group"><label>Contexto adicional</label><textarea id="kw-context" placeholder="Campaña, temporada, especialidades..."></textarea></div>
+            <button class="btn btn-accent" style="width:100%" onclick="generateKeywords()">✨ Generar keywords</button>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div class="section-title" style="margin:0">Resultados</div>
+              <button class="btn btn-sm" id="save-all-kws" style="display:none" onclick="saveAllKws()">Guardar todas</button>
+            </div>
+            <div id="kw-output"><div class="empty" style="padding:30px 0"><p>Las keywords aparecerán aquí</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="tool-panel-meta" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← Metas & Títulos SEO</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="form-group"><label>Tipo de página</label>
+              <select id="meta-pagetype"><option>Página de inicio</option><option>Carta / menú</option><option>Reservas</option><option>Contacto</option><option>Artículo de blog</option><option>Ficha de producto</option><option>Landing page</option></select>
+            </div>
+            <div class="form-group"><label>Keyword principal</label><input type="text" id="meta-kw" placeholder="Ej: restaurante mariscos Sanlúcar"></div>
+            <div class="form-group"><label>Descripción de la página</label><textarea id="meta-desc-input" placeholder="Qué ofrece esta página..."></textarea></div>
+            <button class="btn btn-accent" style="width:100%" onclick="generateMeta()">✨ Generar</button>
+          </div>
+          <div class="card">
+            <div class="section-title">Vista previa Google</div>
+            <div class="meta-preview" id="meta-preview" style="display:none"><div class="mp-url" id="mp-url"></div><div class="mp-title" id="mp-title"></div><div class="mp-desc" id="mp-desc"></div></div>
+            <div id="meta-ph" style="color:var(--muted);font-size:13px;font-style:italic;padding:12px 0">La vista previa aparecerá aquí.</div>
+            <hr class="divider">
+            <div class="section-title">Resultado completo</div>
+            <div id="meta-output" class="seo-output placeholder">Título y meta descripción aparecerán aquí.</div>
+            <div class="copy-actions" id="meta-actions" style="display:none"><button class="btn btn-sm" onclick="copyEl('meta-output')">📋 Copiar</button><button class="btn btn-sm" onclick="generateMeta()">🔄</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="tool-panel-content" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← Contenido SEO</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="form-group"><label>Tipo</label><select id="cont-type"><option value="blog">Artículo de blog</option><option value="ficha">Ficha de plato / producto</option><option value="about">Sobre nosotros</option><option value="local">Texto SEO local</option><option value="faq">FAQ optimizado</option><option value="bio">Bio para redes</option></select></div>
+            <div class="form-group"><label>Keyword principal</label><input type="text" id="cont-kw" placeholder="Ej: restaurante mariscos Sanlúcar"></div>
+            <div class="form-group"><label>Keywords secundarias</label><input type="text" id="cont-kws2" placeholder="Separadas por coma..."></div>
+            <div class="form-group"><label>Tema</label><textarea id="cont-prompt" placeholder="Qué quieres comunicar..."></textarea></div>
+            <div class="form-group"><label>Longitud</label><select id="cont-length"><option value="corto">Corto (150-300 palabras)</option><option value="medio">Medio (300-600 palabras)</option><option value="largo">Largo (600-1000 palabras)</option></select></div>
+            <button class="btn btn-accent" style="width:100%" onclick="generateContent()">✨ Generar</button>
+          </div>
+          <div class="card">
+            <div class="section-title">Contenido generado</div>
+            <div id="cont-output" class="seo-output placeholder" style="min-height:280px">El contenido aparecerá aquí.</div>
+            <div class="copy-actions" id="cont-actions" style="display:none"><button class="btn btn-sm" onclick="copyEl('cont-output')">📋 Copiar</button><button class="btn btn-sm" onclick="saveContAsIdea()">🔖 Guardar idea</button><button class="btn btn-sm" onclick="generateContent()">🔄</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="tool-panel-local" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← SEO Local</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="form-group"><label>¿Qué generar?</label><select id="local-what"><option value="descripcion">Descripción Google Business</option><option value="respuesta">Respuestas a reseñas</option><option value="post">Post Google Business</option><option value="keywords">Keywords locales</option></select></div>
+            <div class="form-group"><label>Contexto adicional</label><textarea id="local-context" placeholder="Especialidades, premios, historia..."></textarea></div>
+            <button class="btn btn-accent" style="width:100%" onclick="generateLocal()">✨ Generar</button>
+          </div>
+          <div class="card">
+            <div class="section-title">Resultado</div>
+            <div id="local-output" class="seo-output placeholder" style="min-height:220px">El contenido local aparecerá aquí.</div>
+            <div class="copy-actions" id="local-actions" style="display:none"><button class="btn btn-sm" onclick="copyEl('local-output')">📋 Copiar</button><button class="btn btn-sm" onclick="generateLocal()">🔄</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="tool-panel-social" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← SEO Social</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="form-group"><label>Red social</label><select id="social-net"><option>Instagram</option><option>TikTok</option><option>Facebook</option><option>LinkedIn</option><option>Twitter/X</option></select></div>
+            <div class="form-group"><label>¿Qué optimizar?</label><select id="social-what"><option value="bio">Bio / descripción del perfil</option><option value="hashtags">Estrategia de hashtags</option><option value="keywords-caption">Keywords en captions</option><option value="alt">Texto alternativo de imágenes</option></select></div>
+            <div class="form-group"><label>Contexto adicional</label><textarea id="social-context" placeholder="Objetivo, CTA deseado..."></textarea></div>
+            <button class="btn btn-accent" style="width:100%" onclick="generateSocialSeo()">✨ Optimizar</button>
+          </div>
+          <div class="card">
+            <div class="section-title">Resultado</div>
+            <div id="social-output" class="seo-output placeholder" style="min-height:220px">El contenido optimizado aparecerá aquí.</div>
+            <div class="copy-actions" id="social-actions" style="display:none"><button class="btn btn-sm" onclick="copyEl('social-output')">📋 Copiar</button><button class="btn btn-sm" onclick="generateSocialSeo()">🔄</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="tool-panel-checklist" class="tool-panel">
+        <div class="tool-back" onclick="backToSeoHome()">← Checklist SEO</div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">
+          <select id="cl-type" onchange="renderChecklist()" style="max-width:200px"><option value="web">Web / Blog</option><option value="local">SEO Local</option><option value="social">Redes Sociales</option><option value="contenido">Contenido</option></select>
+          <button class="btn btn-sm" onclick="resetChecklist()">🔄 Reiniciar</button>
+        </div>
+        <div class="audit-score">
+          <div class="score-circle"><div class="score-num" id="cl-score-num">0%</div><div class="score-lbl">completado</div></div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:500;margin-bottom:4px" id="cl-score-title">Empieza marcando ítems</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5" id="cl-score-sub">Completa el checklist para ver tu nivel SEO.</div>
+            <div class="progress-bar" style="margin-top:10px"><div class="progress-fill" id="cl-progress" style="width:0%;background:var(--accent3)"></div></div>
+          </div>
+        </div>
+        <div id="checklist-container"></div>
+      </div>
+    </div>
+    <div id="tab-content" class="tab-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:500">Publicaciones de este cliente</div>
+        <button class="btn btn-sm btn-accent" onclick="openEventModal()">+ Nueva publicación</button>
+      </div>
+      <div id="client-events-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div id="page-calendar" class="page">
+  <div class="page-header"><div class="page-title">Calendario editorial</div><button class="btn btn-accent" onclick="openEventModal()">+ Nueva publicación</button></div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-sm" onclick="changeMonth(-1)">‹</button>
+      <div style="font-size:16px;font-weight:500;min-width:160px" id="cal-month-label"></div>
+      <button class="btn btn-sm" onclick="changeMonth(1)">›</button>
+    </div>
+    <button class="btn btn-sm" onclick="goToday()">Hoy</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+
+<!-- COPY -->
+<div id="page-copy" class="page">
+  <div class="page-header"><div class="page-title">Copy & Captions</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card">
+      <div class="form-group"><label>Cliente</label><select id="copy-client"></select></div>
+      <div class="form-group"><label>Red social</label>
+        <div class="net-pills" id="copy-net-pills">
+          <span class="net-pill ig selected" data-net="Instagram">Instagram</span>
+          <span class="net-pill fb" data-net="Facebook">Facebook</span>
+          <span class="net-pill tt" data-net="TikTok">TikTok</span>
+          <span class="net-pill tw" data-net="Twitter/X">Twitter/X</span>
+          <span class="net-pill li" data-net="LinkedIn">LinkedIn</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Formato</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="copy-format-opts">
+          <span class="format-btn selected" data-fmt="Post">Post</span>
+          <span class="format-btn" data-fmt="Reel">Reel</span>
+          <span class="format-btn" data-fmt="Story">Story</span>
+          <span class="format-btn" data-fmt="Carrusel">Carrusel</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Tono</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="copy-tone-opts">
+          <span class="tone-btn selected" data-tone="auto">Auto</span>
+          <span class="tone-btn" data-tone="Informal y cercano">Cercano</span>
+          <span class="tone-btn" data-tone="Profesional">Profesional</span>
+          <span class="tone-btn" data-tone="Poético y evocador">Poético</span>
+          <span class="tone-btn" data-tone="Divertido">Divertido</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Describe el post</label><textarea id="copy-prompt" placeholder="Ej: Nuevo plato de temporada..."></textarea></div>
+      <div class="form-group"><label>Instrucciones adicionales</label><input type="text" id="copy-extra" placeholder="CTA, precio, menciones..."></div>
+      <button class="btn btn-accent" style="width:100%" onclick="generateCopy()">✨ Generar con IA</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Caption</div>
+      <div id="copy-output" class="copy-output placeholder">El texto generado aparecerá aquí.</div>
+      <div class="copy-actions" id="copy-actions" style="display:none">
+        <button class="btn btn-sm" onclick="copyEl('copy-output')">📋 Copiar</button>
+        <button class="btn btn-sm" onclick="saveIdeaFromCopy()">🔖 Guardar</button>
+        <button class="btn btn-sm" onclick="generateCopy()">🔄</button>
+      </div>
+      <div id="char-count" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+      <hr class="divider">
+      <div class="section-title">Hashtags</div>
+      <div id="hashtag-output" class="copy-output placeholder" style="min-height:80px">Aquí aparecerán los hashtags.</div>
+      <div class="copy-actions" id="hashtag-actions" style="display:none">
+        <button class="btn btn-sm" onclick="copyEl('hashtag-output')">📋 Copiar hashtags</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BRIEF -->
+<div id="page-brief" class="page">
+  <div class="page-header"><div class="page-title">Brief Visual</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card">
+      <div class="form-group"><label>Cliente</label><select id="brief-client"></select></div>
+      <div class="form-group"><label>Tipo</label><select id="brief-type"><option>Fotografía de producto</option><option>Fotografía de ambiente</option><option>Retrato / equipo</option><option>Flat lay</option><option>Vídeo / Reel</option><option>Story animada</option></select></div>
+      <div class="form-group"><label>Descripción</label><textarea id="brief-prompt" placeholder="Qué fotografiar, qué transmitir..."></textarea></div>
+      <div class="form-group"><label>Mood / referencias</label><input type="text" id="brief-ref" placeholder="Colores, estilo, referencias..."></div>
+      <div class="form-group"><label>Red de destino</label><select id="brief-net"><option>Instagram Feed</option><option>Instagram Story</option><option>Instagram Reel</option><option>TikTok</option></select></div>
+      <button class="btn btn-accent" style="width:100%" onclick="generateBrief()">✨ Generar Brief</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Brief generado</div>
+      <div id="brief-output" class="copy-output placeholder" style="min-height:300px">El brief aparecerá aquí.</div>
+      <div class="copy-actions" id="brief-actions" style="display:none;margin-top:10px">
+        <button class="btn btn-sm" onclick="copyEl('brief-output')">📋 Copiar</button>
+        <button class="btn btn-sm" onclick="saveBriefAsIdea()">🔖 Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IDEAS -->
+<div id="page-ideas" class="page">
+  <div class="page-header"><div class="page-title">Banco de Ideas</div><button class="btn btn-accent" onclick="openIdeaModal()">+ Nueva idea</button></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn btn-sm" onclick="filterIdeas('all')" data-filter="all">Todas</button>
+    <button class="btn btn-sm" onclick="filterIdeas('copy')" data-filter="copy">Copies</button>
+    <button class="btn btn-sm" onclick="filterIdeas('brief')" data-filter="brief">Briefs</button>
+    <button class="btn btn-sm" onclick="filterIdeas('idea')" data-filter="idea">Ideas</button>
+  </div>
+  <div class="ideas-grid" id="ideas-grid"><div class="empty" style="grid-column:1/-1"><p>El banco de ideas está vacío.</p></div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div class="page-header"><div class="page-title">Configuración</div></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><div class="card-title">🤖 Proveedor de IA</div></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Selecciona el proveedor y pega tu API key. Puedes cambiarla en cualquier momento.</p>
+    <div class="ai-provider-cards">
+      <div class="ai-provider-card" id="prov-gemini" onclick="selectProvider('gemini')">
+        <div class="ai-provider-name">Google Gemini Flash</div>
+        <div class="ai-provider-meta">✅ Gratuito · Recomendado para empezar</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Obtén tu key gratis en aistudio.google.com</div>
+      </div>
+      <div class="ai-provider-card" id="prov-groq" onclick="selectProvider('groq')">
+        <div class="ai-provider-name">Groq (LLaMA 3)</div>
+        <div class="ai-provider-meta">✅ Gratuito · Muy rápido</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Obtén tu key gratis en console.groq.com</div>
+      </div>
+      <div class="ai-provider-card" id="prov-openrouter" onclick="selectProvider('openrouter')">
+        <div class="ai-provider-name">OpenRouter</div>
+        <div class="ai-provider-meta">⚡ Modelos gratuitos disponibles</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Obtén tu key en openrouter.ai</div>
+      </div>
+      <div class="ai-provider-card" id="prov-anthropic" onclick="selectProvider('anthropic')">
+        <div class="ai-provider-name">Anthropic Claude</div>
+        <div class="ai-provider-meta">💳 De pago · Mayor calidad</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Obtén tu key en console.anthropic.com</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label id="api-key-label">API Key de Gemini</label>
+      <input type="password" id="api-key-input" placeholder="Pega aquí tu API key...">
+    </div>
+    <div id="model-selector-row" class="form-group" style="display:none">
+      <label>Modelo (OpenRouter)</label>
+      <input type="text" id="model-input" placeholder="Ej: mistralai/mistral-7b-instruct:free" value="mistralai/mistral-7b-instruct:free">
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-accent" onclick="saveAiConfig()">💾 Guardar configuración</button>
+      <span id="ai-config-status" class="ai-status none">Sin configurar</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><div class="card-title">💾 Datos guardados</div></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Todos los datos se guardan en tu navegador (localStorage). No se envían a ningún servidor externo salvo las llamadas a la IA.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="exportData()">📤 Exportar datos (JSON)</button>
+      <button class="btn btn-sm" onclick="document.getElementById('import-file').click()">📥 Importar datos</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-sm btn-danger" onclick="clearAllData()">🗑️ Borrar todos los datos</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">ℹ️ Acerca de SocialDesk</div></div>
+    <div style="font-size:13px;line-height:1.8;color:var(--muted)">
+      <p><strong style="color:var(--text)">SocialDesk v1.0</strong> — Herramienta de gestión de contenido para digital marketers.</p>
+      <p style="margin-top:8px">Desarrollada como un único archivo HTML. No requiere servidor ni instalación. Todos los datos se guardan localmente en tu navegador.</p>
+      <p style="margin-top:8px">Para modificar la herramienta, abre el archivo <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">index.html</code> con cualquier editor de código (VS Code recomendado).</p>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="client-modal-title">Nuevo cliente</div><button class="modal-close" onclick="closeModal('client-modal')">&times;</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre</label><input type="text" id="c-name" placeholder="Ej: La Lobera Restaurante"></div>
+      <div class="form-group"><label>Handle Instagram</label><input type="text" id="c-handle" placeholder="@cuenta"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Sector</label><input type="text" id="c-sector" placeholder="Ej: Restaurante, Moda..."></div>
+      <div class="form-group"><label>Web</label><input type="text" id="c-web" placeholder="https://..."></div>
+    </div>
+    <div class="form-group"><label>Redes activas</label>
+      <div class="net-pills" id="c-nets" style="margin-top:4px">
+        <span class="net-pill ig" data-net="Instagram" onclick="toggleNet(this)">Instagram</span>
+        <span class="net-pill fb" data-net="Facebook" onclick="toggleNet(this)">Facebook</span>
+        <span class="net-pill tt" data-net="TikTok" onclick="toggleNet(this)">TikTok</span>
+        <span class="net-pill tw" data-net="Twitter/X" onclick="toggleNet(this)">Twitter/X</span>
+        <span class="net-pill li" data-net="LinkedIn" onclick="toggleNet(this)">LinkedIn</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Tono de voz</label>
+        <select id="c-tone"><option>Informal y cercano</option><option>Profesional y serio</option><option>Poético y evocador</option><option>Divertido y desenfadado</option><option>Elegante y refinado</option><option>Coloquial y energético</option></select>
+      </div>
+      <div class="form-group"><label>Frecuencia</label>
+        <select id="c-freq"><option>Diario</option><option>3-4 veces por semana</option><option>2-3 veces por semana</option><option>Semanal</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Colores de marca</label><input type="text" id="c-colors" placeholder="#hex, nombre..."></div>
+    <div class="form-group"><label>Hashtags fijos</label><input type="text" id="c-hashtags" placeholder="#marca #sector..."></div>
+    <div class="form-group"><label>Notas</label><textarea id="c-notes" placeholder="Estilo visual, valores, público..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('client-modal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveClient()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="seo-config-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Configurar perfil SEO</div><button class="modal-close" onclick="closeModal('seo-config-modal')">&times;</button></div>
+    <div style="background:rgba(95,184,154,.08);border:1px solid rgba(95,184,154,.2);border-radius:var(--rsm);padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+      ℹ️ El sector, web y tono ya se cargan de la ficha del cliente. Aquí solo añades los datos específicos de SEO.
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ciudad / zona</label><input type="text" id="sp-city" placeholder="Ej: Sanlúcar de Barrameda"></div>
+      <div class="form-group"><label>Keyword principal objetivo</label><input type="text" id="sp-kw" placeholder="Ej: restaurante mariscos Sanlúcar"></div>
+    </div>
+    <div class="form-group"><label>Competidores principales</label><input type="text" id="sp-competitors" placeholder="Ej: Casa Balbino, Casa Bigote..."></div>
+    <div class="form-group"><label>Público objetivo</label><input type="text" id="sp-audience" placeholder="Ej: turistas, familias locales, foodies..."></div>
+    <div class="form-group"><label>Notas SEO adicionales</label><textarea id="sp-notes" placeholder="Objetivos de posicionamiento, puntos fuertes..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('seo-config-modal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveSeoConfig()">✓ Guardar perfil SEO</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nueva publicación</div><button class="modal-close" onclick="closeModal('event-modal')">&times;</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cliente</label><select id="ev-client"></select></div>
+      <div class="form-group"><label>Red</label><select id="ev-net"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>Twitter/X</option><option>LinkedIn</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha</label><input type="date" id="ev-date"></div>
+      <div class="form-group"><label>Formato</label><select id="ev-format"><option>Post</option><option>Reel</option><option>Story</option><option>Carrusel</option></select></div>
+    </div>
+    <div class="form-group"><label>Título</label><input type="text" id="ev-title" placeholder="Ej: Post nuevo menú"></div>
+    <div class="form-group"><label>Estado</label><select id="ev-status"><option value="idea">Idea</option><option value="produccion">En producción</option><option value="listo">Listo</option><option value="publicado">Publicado</option></select></div>
+    <div class="form-group"><label>Notas</label><textarea id="ev-notes"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('event-modal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveEvent()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="idea-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nueva idea</div><button class="modal-close" onclick="closeModal('idea-modal')">&times;</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cliente</label><select id="idea-client"></select></div>
+      <div class="form-group"><label>Tipo</label><select id="idea-type"><option value="idea">Idea suelta</option><option value="copy">Copy</option><option value="brief">Brief</option><option value="tendencia">Tendencia</option></select></div>
+    </div>
+    <div class="form-group"><label>Contenido</label><textarea id="idea-text" style="min-height:120px"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('idea-modal')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveIdea()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ev-detail-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title" id="evd-title"></div><button class="modal-close" onclick="closeModal('ev-detail-modal')">&times;</button></div>
+    <div id="evd-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="deleteEvent()">🗑️ Eliminar</button>
+      <button class="btn" onclick="closeModal('ev-detail-modal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// AI ENGINE — Adaptador multi-proveedor
+// ============================================================
+const AI_PROVIDERS = {
+  gemini: {
+    name: 'Google Gemini Flash',
+    endpoint: (key) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+    buildBody: (prompt) => ({ contents: [{ parts: [{ text: prompt }] }] }),
+    parseResponse: (data) => data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  },
+  groq: {
+    name: 'Groq (LLaMA 3)',
+    endpoint: () => 'https://api.groq.com/openai/v1/chat/completions',
+    buildBody: (prompt) => ({ model: 'llama3-8b-8192', messages: [{ role: 'user', content: prompt }], max_tokens: 1000 }),
+    parseResponse: (data) => data.choices?.[0]?.message?.content || '',
+    headers: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` })
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    endpoint: () => 'https://openrouter.ai/api/v1/chat/completions',
+    buildBody: (prompt, model) => ({ model: model || 'mistralai/mistral-7b-instruct:free', messages: [{ role: 'user', content: prompt }], max_tokens: 1000 }),
+    parseResponse: (data) => data.choices?.[0]?.message?.content || '',
+    headers: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` })
+  },
+  anthropic: {
+    name: 'Anthropic Claude',
+    endpoint: () => 'https://api.anthropic.com/v1/messages',
+    buildBody: (prompt) => ({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }),
+    parseResponse: (data) => data.content?.map(i => i.text || '').join('') || '',
+    headers: (key) => ({ 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' })
+  }
+};
+
+async function callAI(prompt) {
+  const provider = localStorage.getItem('sd_provider') || 'gemini';
+  const key = localStorage.getItem('sd_apikey') || '';
+  const model = localStorage.getItem('sd_model') || '';
+  if (!key) throw new Error('No hay API key configurada. Ve a Configuración.');
+  const p = AI_PROVIDERS[provider];
+  const isGemini = provider === 'gemini';
+  const url = isGemini ? p.endpoint(key) : p.endpoint();
+  const headers = isGemini ? { 'Content-Type': 'application/json' } : p.headers(key);
+  const body = provider === 'openrouter' ? p.buildBody(prompt, model) : p.buildBody(prompt);
+  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+  if (!res.ok) { const err = await res.text(); throw new Error(`Error API (${res.status}): ${err}`); }
+  const data = await res.json();
+  return p.parseResponse(data);
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let S = { clients:[], events:[], ideas:[], checklistState:{}, editingClientId:null, activeClient:null, calYear:new Date().getFullYear(), calMonth:new Date().getMonth(), activeFilter:'all', deletingEventId:null };
+
+function loadState() {
+  try { const d = localStorage.getItem('socialdesk_data'); if (d) Object.assign(S, JSON.parse(d)); } catch(e) {}
+  loadAiConfig();
+  refreshAll();
+}
+function saveState() {
+  try { localStorage.setItem('socialdesk_data', JSON.stringify({ clients:S.clients, events:S.events, ideas:S.ideas, checklistState:S.checklistState })); } catch(e) {}
+}
+function loadAiConfig() {
+  const provider = localStorage.getItem('sd_provider') || '';
+  const key = localStorage.getItem('sd_apikey') || '';
+  if (provider) {
+    selectProvider(provider, true);
+    document.getElementById('api-key-input').value = key ? '••••••••••••••••' : '';
+    document.getElementById('ai-config-status').textContent = key ? '✓ Configurado' : 'Sin configurar';
+    document.getElementById('ai-config-status').className = 'ai-status ' + (key ? 'ok' : 'none');
+  }
+  const alert = document.getElementById('ai-alert');
+  if (alert) alert.style.display = key ? 'none' : 'flex';
+  if (provider === 'openrouter') {
+    const m = localStorage.getItem('sd_model');
+    if (m) document.getElementById('model-input').value = m;
+  }
+}
+function refreshAll() { updateDash(); renderClients(); renderCal(); updateSelects(); renderIdeas(); document.getElementById('clients-count').textContent = S.clients.length; document.getElementById('ideas-count').textContent = S.ideas.length; }
+
+function goTo(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelector(`.nav-item[onclick="goTo('${p}')"]`).classList.add('active');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+let _pendingProvider = 'gemini';
+function selectProvider(id, silent) {
+  _pendingProvider = id;
+  document.querySelectorAll('.ai-provider-card').forEach(c => c.classList.remove('selected'));
+  const el = document.getElementById('prov-'+id);
+  if (el) el.classList.add('selected');
+  const labels = { gemini:'API Key de Google Gemini', groq:'API Key de Groq', openrouter:'API Key de OpenRouter', anthropic:'API Key de Anthropic' };
+  document.getElementById('api-key-label').textContent = labels[id] || 'API Key';
+  document.getElementById('model-selector-row').style.display = id === 'openrouter' ? 'block' : 'none';
+  if (!silent) document.getElementById('api-key-input').value = '';
+}
+function saveAiConfig() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key || key.includes('•')) { alert('Pega tu API key primero'); return; }
+  localStorage.setItem('sd_provider', _pendingProvider);
+  localStorage.setItem('sd_apikey', key);
+  if (_pendingProvider === 'openrouter') localStorage.setItem('sd_model', document.getElementById('model-input').value.trim());
+  document.getElementById('api-key-input').value = '••••••••••••••••';
+  document.getElementById('ai-config-status').textContent = '✓ Configurado';
+  document.getElementById('ai-config-status').className = 'ai-status ok';
+  const alert = document.getElementById('ai-alert');
+  if (alert) alert.style.display = 'none';
+  alert('✅ Configuración guardada correctamente.');
+}
+function exportData() {
+  const data = { clients:S.clients, events:S.events, ideas:S.ideas, checklistState:S.checklistState };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'socialdesk-backup.json'; a.click();
+}
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (confirm('¿Importar datos? Esto reemplazará los datos actuales.')) {
+        Object.assign(S, d); saveState(); refreshAll(); alert('✅ Datos importados correctamente.');
+      }
+    } catch(err) { alert('Error al importar el archivo.'); }
+  };
+  reader.readAsText(file);
+}
+function clearAllData() {
+  if (!confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem('socialdesk_data');
+  S.clients=[]; S.events=[]; S.ideas=[]; S.checklistState={};
+  refreshAll(); alert('Datos eliminados.');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function updateDash() {
+  const now = new Date();
+  document.getElementById('stat-clients').textContent = S.clients.length;
+  document.getElementById('stat-posts').textContent = S.events.filter(e => { const d=new Date(e.date); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); }).length;
+  document.getElementById('stat-ideas').textContent = S.ideas.length;
+  document.getElementById('stat-seo').textContent = S.clients.filter(c => c.seo&&c.seo.configured).length;
+  document.getElementById('dash-date').textContent = now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  const up = S.events.filter(e=>new Date(e.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,4);
+  document.getElementById('dash-upcoming').innerHTML = up.length ? up.map(e=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="min-width:44px;text-align:center;background:var(--bg3);border-radius:6px;padding:4px 0"><div style="font-size:16px;font-weight:600">${new Date(e.date).getDate()}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase">${new Date(e.date).toLocaleDateString('es-ES',{month:'short'})}</div></div><div><div style="font-size:13px;font-weight:500">${e.title}</div><div style="font-size:11px;color:var(--muted)">${e.client}·${e.network}</div></div></div>`).join('') : '<div class="empty"><p>Sin publicaciones próximas</p></div>';
+  const sc = S.clients.filter(c=>c.seo&&c.seo.configured);
+  document.getElementById('dash-seo').innerHTML = sc.length ? sc.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openClientDetail('${c.id}')"><div style="width:32px;height:32px;border-radius:8px;background:rgba(95,184,154,.15);display:flex;align-items:center;justify-content:center;color:var(--accent3);font-size:14px">🔍</div><div><div style="font-size:13px;font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--muted)">${c.seo.city||''} · ${(c.seo.keywords||[]).length} keywords</div></div></div>`).join('') : '<div class="empty"><p>Ningún cliente tiene SEO activo</p></div>';
+}
+
+// ============================================================
+// CLIENTS
+// ============================================================
+function renderClients() {
+  const grid = document.getElementById('client-grid');
+  document.getElementById('clients-subtitle').textContent = S.clients.length ? `(${S.clients.length})` : '';
+  if (!S.clients.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:60px 0"><p>Aún no tienes clientes. Añade el primero.</p></div>'; return; }
+  grid.innerHTML = S.clients.map(c => {
+    const hasSeo = c.seo&&c.seo.configured; const kwC = (c.seo?.keywords||[]).length;
+    return `<div class="client-card">
+      <div class="client-card-top">
+        <div class="client-card-name">${c.name}</div>
+        <div class="client-card-handle">${c.handle||''} · ${c.sector||''}</div>
+        <div class="client-card-tags">${(c.networks||[]).map(n=>`<span class="tag">${n}</span>`).join('')}<span class="tag accent">${c.tone}</span></div>
+        ${c.notes?`<div style="font-size:12px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${c.notes}</div>`:''}
+      </div>
+      <div class="client-card-bottom">
+        <span class="seo-pill ${hasSeo?'active':'inactive'}">${hasSeo?`🔍 SEO · ${kwC} kw`:'Sin perfil SEO'}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-seo" onclick="openClientDetail('${c.id}')">Abrir →</button>
+          <button class="btn btn-sm" onclick="openClientModal('${c.id}');event.stopPropagation()">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteClient('${c.id}');event.stopPropagation()">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openClientDetail(id) {
+  const c = S.clients.find(x=>x.id===id); if (!c) return;
+  S.activeClient = c;
+  document.getElementById('clients-list-view').style.display = 'none';
+  document.getElementById('client-detail-view').style.display = 'block';
+  goTo('clients');
+  renderClientHeader(c); renderClientInfo(c); renderSeoHome(c); renderClientEvents(c);
+  clientTab('info', document.querySelector('.client-tab'));
+}
+function backToClients() { document.getElementById('clients-list-view').style.display='block'; document.getElementById('client-detail-view').style.display='none'; S.activeClient=null; renderClients(); }
+function clientTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.client-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (el) el.classList.add('active');
+  if (tab==='seo') backToSeoHome();
+}
+function renderClientHeader(c) {
+  document.getElementById('client-detail-header').innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:10px;background:rgba(200,169,110,.2);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-weight:600">${c.name.charAt(0)}</div>
+        <div><div style="font-size:18px;font-weight:500">${c.name}</div><div style="font-size:12px;color:var(--muted)">${c.handle||''} · ${c.sector||''}</div></div>
+      </div>
+      <button class="btn btn-sm" onclick="openClientModal('${c.id}')">✏️ Editar ficha</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${c.web?`<span class="tag">🌐 ${c.web}</span>`:''}
+      ${(c.networks||[]).map(n=>`<span class="tag">${n}</span>`).join('')}
+      <span class="tag accent">${c.tone}</span>
+      ${c.freq?`<span class="tag">${c.freq}</span>`:''}
+    </div>`;
+}
+function renderClientInfo(c) {
+  const row = (l,v) => v?`<div style="display:flex;gap:8px;margin-bottom:8px"><span style="font-size:12px;color:var(--muted);min-width:100px">${l}</span><span style="font-size:13px">${v}</span></div>`:''
+  document.getElementById('client-info-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card">${row('Tono de voz',c.tone)}${row('Frecuencia',c.freq)}${row('Colores',c.colors)}${row('Hashtags fijos',c.hashtags)}${row('Web',c.web)}</div>
+      <div class="card"><div style="font-size:13px;line-height:1.7;color:${c.notes?'var(--text)':'var(--muted)'}">${c.notes||'Sin notas adicionales.'}</div></div>
+    </div>`;
+}
+function renderClientEvents(c) {
+  const evs = S.events.filter(e=>e.client===c.name).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const SC = {idea:'var(--muted)',produccion:'var(--accent)',listo:'var(--accent3)',publicado:'var(--accent2)'};
+  document.getElementById('client-events-list').innerHTML = evs.length ? evs.map(e=>`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);margin-bottom:8px">
+    <div style="min-width:44px;text-align:center;background:var(--bg3);border-radius:6px;padding:4px 0"><div style="font-size:16px;font-weight:600">${new Date(e.date).getDate()}</div><div style="font-size:10px;color:var(--muted)">${new Date(e.date).toLocaleDateString('es-ES',{month:'short'})}</div></div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${e.title}</div><div style="font-size:11px;color:var(--muted)">${e.network} · ${e.format}</div></div>
+    <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${SC[e.status]}22;color:${SC[e.status]}">${e.status}</span>
+    <button class="btn btn-sm btn-danger" onclick="deleteSpecificEvent('${e.id}')">🗑️</button>
+  </div>`).join('') : '<div class="empty" style="padding:40px 0"><p>Sin publicaciones todavía</p></div>';
+}
+function deleteSpecificEvent(id) { if (!confirm('¿Eliminar?')) return; S.events=S.events.filter(e=>e.id!==id); saveState(); if(S.activeClient)renderClientEvents(S.activeClient); renderCal(); updateDash(); }
+
+// SEO HOME
+function renderSeoHome(c) {
+  const seo = c.seo||{}; const hasSeo = seo.configured;
+  document.getElementById('seo-profile-title').textContent = hasSeo ? `Perfil SEO · ${c.name}` : 'Perfil SEO no configurado';
+  document.getElementById('seo-profile-subtitle').textContent = hasSeo ? `${seo.city||''} · ${seo.sector||c.sector||''}` : 'Configura el perfil SEO para usar las herramientas con contexto precargado';
+  document.getElementById('seo-profile-data').innerHTML = hasSeo ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${seo.city?`<span class="tag">📍 ${seo.city}</span>`:''}
+    ${seo.kw?`<span class="tag accent">🎯 ${seo.kw}</span>`:''}
+    ${c.web?`<span class="tag seo">🌐 ${c.web}</span>`:''}
+    ${seo.competitors?`<span class="tag">Vs: ${seo.competitors}</span>`:''}
+  </div>` : '<div style="font-size:13px;color:var(--muted)">Completa el perfil SEO para que todas las herramientas usen el contexto de este cliente.</div>';
+  const kwC = (seo.keywords||[]).length; const clS = getSeoScore(c.id);
+  document.getElementById('seo-kpis').innerHTML = `
+    <div style="text-align:center"><div style="font-size:20px;font-weight:500">${kwC}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Keywords guardadas</div></div>
+    <div style="text-align:center"><div style="font-size:20px;font-weight:500">${clS}%</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Checklist completado</div></div>
+    <div style="text-align:center"><div style="font-size:20px;font-weight:500">${seo.competitors?seo.competitors.split(',').length:0}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Competidores</div></div>`;
+  renderClientKwList();
+}
+function getSeoScore(clientId) {
+  const key='cl_'+clientId; const cls=S.checklistState[key]||{};
+  let total=0,done=0; Object.values(CHECKLISTS).forEach(secs=>secs.forEach(s=>s.items.forEach((_,i)=>{total++;if(cls[`${key}_${s.cat}_${i}`])done++;})));
+  return total?Math.round((done/total)*100):0;
+}
+function renderClientKwList() {
+  const c=S.activeClient; if(!c)return; const kws=(c.seo?.keywords||[]);
+  document.getElementById('client-kw-list').innerHTML = kws.length ? `<div style="display:flex;flex-wrap:wrap;gap:5px;padding:8px 0">${kws.map(k=>`<span class="kw-chip">${k.keyword}<button onclick="removeKw('${k.id}')" style="background:none;border:none;color:inherit;cursor:pointer;padding:0;font-size:11px;opacity:.6;margin-left:2px">×</button></span>`).join('')}</div>` : '<div style="padding:14px;color:var(--muted);font-size:13px;text-align:center">Sin keywords todavía. Usa la herramienta Keywords.</div>';
+}
+function removeKw(kwId) { const c=S.clients.find(x=>x.id===S.activeClient?.id); if(!c||!c.seo)return; c.seo.keywords=(c.seo.keywords||[]).filter(k=>k.id!==kwId); S.activeClient=c; saveState(); renderClientKwList(); renderSeoHome(c); }
+function clearClientKws() { if(!confirm('¿Limpiar todas las keywords?'))return; const c=S.clients.find(x=>x.id===S.activeClient?.id); if(!c||!c.seo)return; c.seo.keywords=[]; S.activeClient=c; saveState(); renderClientKwList(); renderSeoHome(c); }
+function openSeoConfigModal() {
+  const c=S.activeClient; if(!c)return; const seo=c.seo||{};
+  document.getElementById('sp-city').value=seo.city||''; document.getElementById('sp-kw').value=seo.kw||'';
+  document.getElementById('sp-competitors').value=seo.competitors||''; document.getElementById('sp-audience').value=seo.audience||''; document.getElementById('sp-notes').value=seo.notes||'';
+  document.getElementById('seo-config-modal').classList.add('open');
+}
+function saveSeoConfig() {
+  const c=S.clients.find(x=>x.id===S.activeClient?.id); if(!c)return;
+  c.seo=c.seo||{}; c.seo.configured=true; c.seo.city=document.getElementById('sp-city').value.trim();
+  c.seo.kw=document.getElementById('sp-kw').value.trim(); c.seo.competitors=document.getElementById('sp-competitors').value.trim();
+  c.seo.audience=document.getElementById('sp-audience').value.trim(); c.seo.notes=document.getElementById('sp-notes').value.trim();
+  S.activeClient=c; saveState(); closeModal('seo-config-modal'); renderSeoHome(c); renderClients(); updateDash();
+}
+function openTool(toolId) { document.getElementById('seo-home').classList.add('hidden'); document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active')); document.getElementById('tool-panel-'+toolId).classList.add('active'); if(toolId==='checklist')renderChecklist(); }
+function backToSeoHome() { document.getElementById('seo-home').classList.remove('hidden'); document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active')); if(S.activeClient){renderSeoHome(S.activeClient);} }
+
+function clientCtx() {
+  const c=S.activeClient; if(!c)return'';
+  const seo=c.seo||{};
+  return `Marca: ${c.name}\nSector: ${c.sector||seo.sector||''}\nCiudad: ${seo.city||''}\nWeb: ${c.web||''}\nTono: ${c.tone||''}\nKeyword objetivo: ${seo.kw||''}\nCompetidores: ${seo.competitors||'ninguno'}\nAudiencia: ${seo.audience||''}\nNotas: ${seo.notes||c.notes||''}`;
+}
+
+// ============================================================
+// SEO TOOLS
+// ============================================================
+async function generateKeywords() {
+  const type=document.getElementById('kw-type').value; const context=document.getElementById('kw-context').value.trim();
+  const out=document.getElementById('kw-output'); out.innerHTML='<div style="padding:20px;color:var(--muted);font-style:italic">Analizando keywords...</div>'; document.getElementById('save-all-kws').style.display='none';
+  try {
+    const text = await callAI(`SEO experto. 15 keywords tipo "${type}".\n${clientCtx()}\n${context?`Contexto extra: ${context}`:''}\nResponde SOLO en JSON sin markdown: {"keywords":[{"keyword":"...","tipo":"primary|secondary|longtail","dificultad":"low|medium|high","intencion":"informacional|transaccional|navegacional|local"}]}`);
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    window._lastKws = parsed.keywords.map(k=>({...k,id:'kw_'+Date.now()+'_'+Math.random().toString(36).slice(2)}));
+    const dc={low:'low',medium:'med',high:'high'};
+    out.innerHTML=`<table class="kw-table"><thead><tr><th>Keyword</th><th>Tipo</th><th>Dif.</th><th>Intención</th><th></th></tr></thead><tbody>${window._lastKws.map((k,i)=>`<tr><td style="font-weight:500">${k.keyword}</td><td><span class="tag">${k.tipo}</span></td><td><span class="kw-diff ${dc[k.dificultad]||'med'}">${k.dificultad}</span></td><td style="color:var(--muted);font-size:12px">${k.intencion}</td><td><button class="btn btn-sm" onclick="saveOneKw(${i})">🔖</button></td></tr>`).join('')}</tbody></table>`;
+    document.getElementById('save-all-kws').style.display='inline-flex';
+  } catch(e) { out.innerHTML=`<div style="padding:20px;color:var(--danger)">${e.message}</div>`; }
+}
+function saveOneKw(i) {
+  const kw=window._lastKws?.[i]; if(!kw)return;
+  const c=S.clients.find(x=>x.id===S.activeClient?.id); if(!c)return;
+  c.seo=c.seo||{}; c.seo.keywords=c.seo.keywords||[];
+  if(!c.seo.keywords.find(k=>k.keyword===kw.keyword)){c.seo.keywords.push(kw);S.activeClient=c;saveState();renderClientKwList();renderSeoHome(c);}
+}
+function saveAllKws() {
+  if(!window._lastKws)return; const c=S.clients.find(x=>x.id===S.activeClient?.id); if(!c)return;
+  c.seo=c.seo||{}; c.seo.keywords=c.seo.keywords||[];
+  window._lastKws.forEach(k=>{if(!c.seo.keywords.find(x=>x.keyword===k.keyword))c.seo.keywords.push(k);});
+  S.activeClient=c; saveState(); renderClientKwList(); renderSeoHome(c); alert('Keywords guardadas');
+}
+async function generateMeta() {
+  const kw=document.getElementById('meta-kw').value.trim(); if(!kw){alert('Indica la keyword');return;}
+  const out=document.getElementById('meta-output'); out.textContent='Generando...'; out.classList.remove('placeholder');
+  document.getElementById('meta-actions').style.display='none'; document.getElementById('meta-preview').style.display='none'; document.getElementById('meta-ph').style.display='none';
+  try {
+    const text = await callAI(`SEO experto. Título (50-60 car.) y meta (140-160 car.) para:\n- Tipo: ${document.getElementById('meta-pagetype').value}\n- Keyword: ${kw}\n- Descripción: ${document.getElementById('meta-desc-input').value||'general'}\n${clientCtx()}\nSOLO JSON sin markdown: {"titulo":"...","meta":"...","sugerencias":["...","...","..."]}`);
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    document.getElementById('mp-title').textContent=parsed.titulo; document.getElementById('mp-desc').textContent=parsed.meta;
+    document.getElementById('mp-url').textContent=(S.activeClient?.web||'tunegocio.com').replace('https://','').split('/')[0];
+    document.getElementById('meta-preview').style.display='block';
+    out.textContent=`TÍTULO (${parsed.titulo.length} car.):\n${parsed.titulo}\n\nMETA DESCRIPCIÓN (${parsed.meta.length} car.):\n${parsed.meta}\n\nSUGERENCIAS:\n${parsed.sugerencias.map((s,i)=>`${i+1}. ${s}`).join('\n')}`;
+    document.getElementById('meta-actions').style.display='flex';
+  } catch(e) { out.textContent=e.message; out.classList.add('placeholder'); document.getElementById('meta-ph').style.display='block'; }
+}
+async function generateContent() {
+  const kw=document.getElementById('cont-kw').value.trim(); const prompt=document.getElementById('cont-prompt').value.trim();
+  if(!kw||!prompt){alert('Keyword y tema son obligatorios');return;}
+  const out=document.getElementById('cont-output'); out.textContent='Generando...'; out.classList.remove('placeholder'); document.getElementById('cont-actions').style.display='none';
+  try {
+    const text = await callAI(`Copywriter SEO. Tipo: ${document.getElementById('cont-type').value}. Keyword: ${kw}. Keywords sec.: ${document.getElementById('cont-kws2').value||'ninguna'}. Tema: ${prompt}. Longitud: ${document.getElementById('cont-length').value}.\n${clientCtx()}\nKeyword en primer párrafo. Natural y fluido.`);
+    out.textContent=text; document.getElementById('cont-actions').style.display='flex';
+  } catch(e) { out.textContent=e.message; out.classList.add('placeholder'); }
+}
+function saveContAsIdea(){S.ideas.push({id:'id_'+Date.now(),type:'idea',text:document.getElementById('cont-output').textContent,client:S.activeClient?.name||'',date:new Date().toLocaleDateString('es-ES')});saveState();refreshAll();alert('Guardado');}
+async function generateLocal() {
+  const what=document.getElementById('local-what').value; const context=document.getElementById('local-context').value.trim();
+  const out=document.getElementById('local-output'); out.textContent='Generando...'; out.classList.remove('placeholder'); document.getElementById('local-actions').style.display='none';
+  const prompts={descripcion:'Descripción Google Business. Máx 750 car. Keywords locales naturales.',respuesta:'3 plantillas respuesta reseñas (positiva, neutral, negativa).',post:'Post Google Business con CTA. Máx 1500 car.',keywords:'20 keywords locales ordenadas por prioridad.'};
+  try {
+    const text = await callAI(`SEO local experto. ${prompts[what]}\n${clientCtx()}\n${context?`Contexto: ${context}`:''}`);
+    out.textContent=text; document.getElementById('local-actions').style.display='flex';
+  } catch(e) { out.textContent=e.message; out.classList.add('placeholder'); }
+}
+async function generateSocialSeo() {
+  const net=document.getElementById('social-net').value; const what=document.getElementById('social-what').value; const ctx2=document.getElementById('social-context').value.trim();
+  const out=document.getElementById('social-output'); out.textContent='Optimizando...'; out.classList.remove('placeholder'); document.getElementById('social-actions').style.display='none';
+  const prompts={bio:`Bio SEO para ${net}. Keyword primeras palabras, CTA, emojis. Máx 150 car.`,hashtags:`Estrategia hashtags ${net}: 5 nicho, 5 sector, 5 locales, 5 comunidad.`,'keywords-caption':`Cómo usar keywords en captions de ${net}. 3 ejemplos naturales.`,alt:`5 alt text SEO para ${net}. Descriptivo, con keyword, máx 125 car.`};
+  try {
+    const text = await callAI(`SEO social. ${prompts[what]}\n${clientCtx()}\n${ctx2?`Contexto: ${ctx2}`:''}`);
+    out.textContent=text; document.getElementById('social-actions').style.display='flex';
+  } catch(e) { out.textContent=e.message; out.classList.add('placeholder'); }
+}
+
+// ============================================================
+// CHECKLIST
+// ============================================================
+const CHECKLISTS = {
+  web:[{cat:'Técnico',items:['Velocidad de carga < 3 segundos','HTTPS activo','Web adaptada a móvil','Sitemap XML en Google Search Console','Robots.txt configurado','Sin errores 404']},{cat:'On-page',items:['Título SEO único (50-60 car.)','Meta descripción única (140-160 car.)','URLs cortas con keyword','H1 único con keyword','Alt text en imágenes','Estructura H1>H2>H3']},{cat:'Contenido',items:['Mínimo 300 palabras por página','Keyword en primer párrafo','Densidad natural (1-2%)','Blog activo','Sin duplicados','Links internos']},{cat:'Off-page',items:['Google Business verificado','Directorios locales','Mínimo 5 backlinks de calidad','Redes sociales enlazadas']}],
+  local:[{cat:'Google Business',items:['Perfil verificado al 100%','Nombre, dirección y teléfono exactos','Horarios actualizados','Categorías correctas','Descripción con keywords','Mínimo 10 fotos','Atributos completados','URL menú añadida']},{cat:'Reseñas',items:['Estrategia de solicitud activa','Respuesta < 48h','Media superior a 4.0','Reseñas mencionan nombre y ciudad']},{cat:'Consistencia',items:['NAP idéntico en web y directorios','Presencia en TripAdvisor/TheFork','Google Maps correcto']}],
+  social:[{cat:'Perfil',items:['Bio con keyword principal','Handle coherente','Enlace en bio activo','Foto y portada de calidad','Categoría correcta','Contacto completo']},{cat:'Contenido',items:['Mínimo 3 publicaciones/semana','Hashtags estratégicos','Keyword en primeros 125 car.','Alt text en imágenes','Subtítulos en vídeos']},{cat:'Engagement',items:['Respuesta comentarios < 24h','Respuesta DMs','Stories interactivas semanales','Etiquetado de ubicación']}],
+  contenido:[{cat:'Investigación',items:['Keyword research realizado','Intención de búsqueda analizada','Competencia analizada','Preguntas del usuario identificadas']},{cat:'Estructura',items:['H1 con keyword','H2/H3 con keywords secundarias','Keyword en primer párrafo','Párrafos cortos','CTA al final']},{cat:'Optimización',items:['Densidad natural (1-2%)','Alt text en imágenes','Links internos','Meta título y descripción únicos','URL corta con keyword']}]
+};
+function renderChecklist() {
+  const c=S.activeClient; if(!c)return; const type=document.getElementById('cl-type').value; const list=CHECKLISTS[type]||[];
+  const sk='cl_'+c.id; if(!S.checklistState[sk])S.checklistState[sk]={};
+  document.getElementById('checklist-container').innerHTML=list.map(sec=>`<div class="card" style="margin-bottom:12px"><div class="card-header"><div class="card-title">${sec.cat}</div></div>${sec.items.map((item,i)=>{const key=`${sk}_${sec.cat}_${i}`;const checked=S.checklistState[sk][key]||false;return `<div class="checklist-item"><div class="check-box ${checked?'checked':''}" onclick="toggleCheck('${sk}','${sec.cat}',${i},this)"></div><span class="check-label ${checked?'done':''}">${item}</span></div>`;}).join('')}</div>`).join('');
+  updateClScore(sk);
+}
+function toggleCheck(sk,cat,i,el) {
+  S.checklistState[sk]=S.checklistState[sk]||{}; const key=`${sk}_${cat}_${i}`; const now=!S.checklistState[sk][key];
+  S.checklistState[sk][key]=now; el.classList.toggle('checked',now); el.nextElementSibling.classList.toggle('done',now);
+  updateClScore(sk); saveState();
+}
+function updateClScore(sk) {
+  const type=document.getElementById('cl-type').value; const list=CHECKLISTS[type]||[];
+  let total=0,done=0; list.forEach(s=>s.items.forEach((_,i)=>{total++;if(S.checklistState[sk]?.[`${sk}_${s.cat}_${i}`])done++;}));
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('cl-score-num').textContent=pct+'%'; document.getElementById('cl-progress').style.width=pct+'%';
+  const col=pct>=75?'var(--accent3)':pct>=40?'var(--accent)':'var(--danger)'; document.getElementById('cl-progress').style.background=col;
+  const lvls=[{t:0,title:'Sin empezar',sub:'Completa el checklist.'},{t:25,title:'Nivel básico',sub:'Hay trabajo importante pendiente.'},{t:50,title:'En progreso',sub:'Céntrate en contenido y off-page.'},{t:75,title:'Buen nivel',sub:'Base sólida. Afina los detalles.'},{t:90,title:'Nivel avanzado',sub:'Excelente. Mantén y actualiza.'}];
+  const lvl=lvls.filter(l=>pct>=l.t).pop();
+  document.getElementById('cl-score-title').textContent=`${done}/${total} · ${lvl.title}`; document.getElementById('cl-score-sub').textContent=lvl.sub;
+}
+function resetChecklist(){if(!confirm('¿Reiniciar checklist?'))return;const c=S.activeClient;if(!c)return;S.checklistState['cl_'+c.id]={};saveState();renderChecklist();}
+
+// ============================================================
+// COPY & BRIEF
+// ============================================================
+document.querySelectorAll('#copy-net-pills .net-pill').forEach(p=>p.addEventListener('click',function(){document.querySelectorAll('#copy-net-pills .net-pill').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
+document.querySelectorAll('#copy-format-opts .format-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#copy-format-opts .format-btn').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
+document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
+async function generateCopy() {
+  const cName=document.getElementById('copy-client').value; const client=S.clients.find(c=>c.name===cName);
+  const network=document.querySelector('#copy-net-pills .net-pill.selected')?.dataset.net||'Instagram';
+  const format=document.querySelector('#copy-format-opts .format-btn.selected')?.dataset.fmt||'Post';
+  const toneO=document.querySelector('#copy-tone-opts .tone-btn.selected')?.dataset.tone;
+  const tone=(toneO&&toneO!=='auto')?toneO:(client?.tone||'cercano');
+  const prompt=document.getElementById('copy-prompt').value.trim(); if(!prompt){alert('Describe el post');return;}
+  const out=document.getElementById('copy-output'); out.textContent='Generando...'; out.classList.remove('placeholder');
+  document.getElementById('copy-actions').style.display='none'; document.getElementById('hashtag-actions').style.display='none';
+  const cCtx=client?`Marca: ${client.name}\nSector: ${client.sector}\nTono: ${client.tone}\nHashtags: ${client.hashtags||''}\nNotas: ${client.notes||''}`:'';
+  try {
+    const text = await callAI(`Caption para ${network} ${format}, tono ${tone}.\nContenido: ${prompt}\n${document.getElementById('copy-extra').value?`Adicional: ${document.getElementById('copy-extra').value}`:''}\n${cCtx}\nSOLO JSON sin markdown: {"caption":"...","hashtags":"..."}`);
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    out.textContent=parsed.caption; document.getElementById('hashtag-output').textContent=parsed.hashtags; document.getElementById('hashtag-output').classList.remove('placeholder');
+    document.getElementById('copy-actions').style.display='flex'; document.getElementById('hashtag-actions').style.display='flex'; document.getElementById('char-count').textContent=`${parsed.caption.length} caracteres`;
+  } catch(e) { out.textContent=e.message; out.classList.add('placeholder'); }
+}
+function saveIdeaFromCopy(){S.ideas.push({id:'id_'+Date.now(),type:'copy',text:document.getElementById('copy-output').textContent+'\n\n'+document.getElementById('hashtag-output').textContent,client:document.getElementById('copy-client').value,date:new Date().toLocaleDateString('es-ES')});saveState();refreshAll();alert('Guardado');}
+async function generateBrief() {
+  const cName=document.getElementById('brief-client').value; const client=S.clients.find(c=>c.name===cName);
+  const prompt=document.getElementById('brief-prompt').value.trim(); if(!prompt){alert('Describe el contenido');return;}
+  const out=document.getElementById('brief-output'); out.textContent='Generando...'; out.style.color='var(--muted)'; document.getElementById('brief-actions').style.display='none';
+  const cCtx=client?`Marca: ${client.name} | Tono: ${client.tone} | Colores: ${client.colors||'no especificados'}`:'';
+  try {
+    const text = await callAI(`Director creativo. Brief visual:\n- Tipo: ${document.getElementById('brief-type').value}\n- Red: ${document.getElementById('brief-net').value}\n- Descripción: ${prompt}\n${document.getElementById('brief-ref').value?`- Mood: ${document.getElementById('brief-ref').value}`:''}\n${cCtx}\nIncluye: 📸 ENCUADRE, 💡 LUZ, 🎨 PALETA, 🏷️ PROPS, 📐 FORMATO, 🎯 OBJETIVO`);
+    out.textContent=text; out.style.color='var(--text)'; document.getElementById('brief-actions').style.display='flex';
+  } catch(e) { out.textContent=e.message; }
+}
+function saveBriefAsIdea(){S.ideas.push({id:'id_'+Date.now(),type:'brief',text:document.getElementById('brief-output').textContent,client:document.getElementById('brief-client').value,date:new Date().toLocaleDateString('es-ES')});saveState();refreshAll();alert('Guardado');}
+
+// ============================================================
+// IDEAS
+// ============================================================
+function renderIdeas() {
+  const filtered=S.activeFilter==='all'?S.ideas:S.ideas.filter(i=>i.type===S.activeFilter);
+  const colors={copy:'var(--accent)',brief:'var(--accent2)',idea:'var(--accent3)',tendencia:'#e06060'};
+  document.getElementById('ideas-grid').innerHTML=filtered.length?[...filtered].reverse().map(i=>`<div class="idea-card"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:${colors[i.type]||'var(--muted)'};margin-bottom:8px">${i.type}${i.client?' · '+i.client:''}</div><div style="font-size:13px;line-height:1.6;margin-bottom:10px">${i.text.length>200?i.text.slice(0,200)+'…':i.text}</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">${i.date||''}</span><div style="display:flex;gap:5px"><button class="btn btn-sm" onclick="navigator.clipboard.writeText(S.ideas.find(x=>x.id==='${i.id}')?.text||'')">📋</button><button class="btn btn-sm btn-danger" onclick="deleteIdea('${i.id}')">🗑️</button></div></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1"><p>No hay ideas en esta categoría.</p></div>';
+}
+function filterIdeas(f){S.activeFilter=f;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active-filter',b.dataset.filter===f));renderIdeas();}
+function deleteIdea(id){if(!confirm('¿Eliminar?'))return;S.ideas=S.ideas.filter(i=>i.id!==id);saveState();refreshAll();}
+function openIdeaModal(){document.getElementById('idea-client').innerHTML='<option value="">Sin asignar</option>'+S.clients.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');document.getElementById('idea-text').value='';document.getElementById('idea-modal').classList.add('open');}
+function saveIdea(){const text=document.getElementById('idea-text').value.trim();if(!text){alert('Escribe algo');return;}S.ideas.push({id:'id_'+Date.now(),type:document.getElementById('idea-type').value,text,client:document.getElementById('idea-client').value,date:new Date().toLocaleDateString('es-ES')});saveState();closeModal('idea-modal');refreshAll();}
+
+// ============================================================
+// CLIENTS MODAL
+// ============================================================
+function openClientModal(editId) {
+  S.editingClientId=editId||null;
+  if(editId){const c=S.clients.find(x=>x.id===editId);document.getElementById('client-modal-title').textContent='Editar cliente';document.getElementById('c-name').value=c.name;document.getElementById('c-handle').value=c.handle||'';document.getElementById('c-sector').value=c.sector||'';document.getElementById('c-web').value=c.web||'';document.getElementById('c-tone').value=c.tone;document.getElementById('c-freq').value=c.freq||'3-4 veces por semana';document.getElementById('c-colors').value=c.colors||'';document.getElementById('c-hashtags').value=c.hashtags||'';document.getElementById('c-notes').value=c.notes||'';document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.toggle('selected',(c.networks||[]).includes(p.dataset.net)));}
+  else{document.getElementById('client-modal-title').textContent='Nuevo cliente';['c-name','c-handle','c-sector','c-web','c-colors','c-hashtags','c-notes'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.remove('selected'));}
+  document.getElementById('client-modal').classList.add('open');
+}
+function toggleNet(el){el.classList.toggle('selected');}
+function saveClient() {
+  const name=document.getElementById('c-name').value.trim(); if(!name){alert('Nombre obligatorio');return;}
+  const nets=[...document.querySelectorAll('#c-nets .net-pill.selected')].map(p=>p.dataset.net);
+  const existing=S.editingClientId?S.clients.find(c=>c.id===S.editingClientId):null;
+  const client={id:S.editingClientId||'c_'+Date.now(),name,handle:document.getElementById('c-handle').value.trim(),sector:document.getElementById('c-sector').value.trim(),web:document.getElementById('c-web').value.trim(),networks:nets,tone:document.getElementById('c-tone').value,freq:document.getElementById('c-freq').value,colors:document.getElementById('c-colors').value.trim(),hashtags:document.getElementById('c-hashtags').value.trim(),notes:document.getElementById('c-notes').value.trim(),seo:existing?.seo||{}};
+  if(S.editingClientId)S.clients=S.clients.map(c=>c.id===S.editingClientId?client:c);else S.clients.push(client);
+  saveState();closeModal('client-modal');refreshAll();if(S.activeClient&&S.activeClient.id===client.id){S.activeClient=client;renderClientHeader(client);renderClientInfo(client);}
+}
+function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;S.clients=S.clients.filter(c=>c.id!==id);saveState();refreshAll();backToClients();}
+
+// ============================================================
+// CALENDAR
+// ============================================================
+const NET_C={Instagram:'#c570e0',Facebook:'#6090e0',TikTok:'#50d0c8','Twitter/X':'#70b8f8',LinkedIn:'#60a0d0'};
+function changeMonth(d){S.calMonth+=d;if(S.calMonth>11){S.calMonth=0;S.calYear++;}if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderCal();}
+function goToday(){const n=new Date();S.calYear=n.getFullYear();S.calMonth=n.getMonth();renderCal();}
+function renderCal() {
+  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-label').textContent=`${months[S.calMonth]} ${S.calYear}`;
+  const grid=document.getElementById('cal-grid'); const days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  let html=days.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
+  const first=new Date(S.calYear,S.calMonth,1); const last=new Date(S.calYear,S.calMonth+1,0);
+  let sdow=first.getDay(); if(sdow===0)sdow=7; const today=new Date();
+  for(let i=1;i<sdow;i++){const d=new Date(S.calYear,S.calMonth,1-(sdow-i));html+=cellH(d,true);}
+  for(let d=1;d<=last.getDate();d++){const date=new Date(S.calYear,S.calMonth,d);html+=cellH(date,false,date.toDateString()===today.toDateString());}
+  const rem=(7-((sdow-1+last.getDate())%7))%7; for(let i=1;i<=rem;i++){const d=new Date(S.calYear,S.calMonth+1,i);html+=cellH(d,true);}
+  grid.innerHTML=html;
+}
+function cellH(date,other,isToday) {
+  const ds=date.toISOString().split('T')[0]; const evs=S.events.filter(e=>e.date===ds);
+  const dl=isToday?`<div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#0e0e0f;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">${date.getDate()}</div>`:`<div class="cal-date" style="${other?'opacity:.3':''}">${date.getDate()}</div>`;
+  const ev=evs.slice(0,3).map(e=>`<div class="cal-event" style="background:${NET_C[e.network]||'#888'}22;color:${NET_C[e.network]||'#aaa'};border-left:2px solid ${NET_C[e.network]||'#888'}" onclick="showEvDetail('${e.id}');event.stopPropagation()">${e.title}</div>`).join('')+(evs.length>3?`<div style="font-size:10px;color:var(--muted)">+${evs.length-3}</div>`:'');
+  return `<div class="cal-cell ${other?'other-month':''}" onclick="openEventModal('${ds}')" style="padding:8px">${dl}${ev}</div>`;
+}
+function openEventModal(ds) {
+  const sel=document.getElementById('ev-client'); sel.innerHTML='<option value="">Sin cliente</option>'+S.clients.map(c=>`<option value="${c.name}"${S.activeClient&&c.name===S.activeClient.name?' selected':''}>${c.name}</option>`).join('');
+  if(ds&&ds.includes('-'))document.getElementById('ev-date').value=ds; else document.getElementById('ev-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ev-title').value=''; document.getElementById('ev-notes').value=''; document.getElementById('ev-status').value='idea';
+  document.getElementById('event-modal').classList.add('open');
+}
+function saveEvent() {
+  const title=document.getElementById('ev-title').value.trim(); const date=document.getElementById('ev-date').value; if(!title||!date){alert('Título y fecha obligatorios');return;}
+  S.events.push({id:'ev_'+Date.now(),title,date,client:document.getElementById('ev-client').value,network:document.getElementById('ev-net').value,format:document.getElementById('ev-format').value,status:document.getElementById('ev-status').value,notes:document.getElementById('ev-notes').value.trim()});
+  saveState(); closeModal('event-modal'); refreshAll(); if(S.activeClient)renderClientEvents(S.activeClient);
+}
+function showEvDetail(id) {
+  const e=S.events.find(x=>x.id===id); if(!e)return; S.deletingEventId=id;
+  document.getElementById('evd-title').textContent=e.title;
+  document.getElementById('evd-body').innerHTML=`<div style="display:grid;gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag">${e.date}</span><span class="tag">${e.network}</span><span class="tag">${e.format}</span><span class="tag">${e.status}</span></div>${e.client?`<div style="font-size:13px;color:var(--muted)">${e.client}</div>`:''} ${e.notes?`<div style="font-size:13px;padding:10px;background:var(--bg3);border-radius:6px">${e.notes}</div>`:''}</div>`;
+  document.getElementById('ev-detail-modal').classList.add('open');
+}
+function deleteEvent(){if(!S.deletingEventId)return;S.events=S.events.filter(e=>e.id!==S.deletingEventId);S.deletingEventId=null;saveState();closeModal('ev-detail-modal');refreshAll();}
+
+// ============================================================
+// UTILS
+// ============================================================
+function updateSelects() {
+  const opts='<option value="">Sin asignar</option>'+S.clients.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  ['copy-client','brief-client'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('¡Copiado al portapapeles!'));}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+loadState();
+</script>
+</body>
+</html>
