@@ -833,10 +833,18 @@ async function callAI(prompt) {
 // ============================================================
 let S = { clients:[], events:[], ideas:[], checklistState:{}, editingClientId:null, editingIdeaId:null, activeClient:null, calYear:new Date().getFullYear(), calMonth:new Date().getMonth(), activeFilter:'all', deletingEventId:null };
 
+function updateSidebarMode() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  if (window.innerWidth <= 900) sidebar.classList.add('collapsed');
+  else sidebar.classList.remove('collapsed');
+}
 function loadState() {
   try { const d = localStorage.getItem('socialdesk_data'); if (d) Object.assign(S, JSON.parse(d)); } catch(e) {}
   loadAiConfig();
   refreshAll();
+  updateSidebarMode();
+  window.addEventListener('resize', updateSidebarMode);
 }
 function saveState() {
   try { localStorage.setItem('socialdesk_data', JSON.stringify({ clients:S.clients, events:S.events, ideas:S.ideas, checklistState:S.checklistState })); } catch(e) {}
