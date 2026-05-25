@@ -1,0 +1,21 @@
+# Ignore node modules and common OS files
+node_modules/
+.env
+.DS_Store
+Thumbs.db
+*.log
+*.key
+*.pem
+.vscode/
+/.idea/
+
+# Ignore built files
+dist/
+build/
+
+# Ignore secrets or backups
+*.bak
+*.backup
+
+# Optional local config
+local.config.json

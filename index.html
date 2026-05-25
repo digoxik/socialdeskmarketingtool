@@ -536,6 +536,13 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
     <div class="form-group">
       <label id="api-key-label">API Key de Gemini</label>
       <input type="password" id="api-key-input" placeholder="Pega aquí tu API key...">
+      <div id="api-key-warning" style="font-size:12px;color:var(--muted);margin-top:8px">
+        ⚠️ Atención: pegar una API key en el navegador es inseguro. Para producción, usa un proxy servidor o credenciales temporales. Si pegaste una key pública, rótala en tu consola.
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-sm" onclick="testAiKey()">🔍 Probar conexión</button>
+        <button class="btn btn-sm" onclick="clearAiKey()">🧹 Borrar clave</button>
+      </div>
     </div>
     <div id="model-selector-row" class="form-group" style="display:none">
       <label>Modelo (OpenRouter)</label>
@@ -780,17 +787,99 @@ function selectProvider(id, silent) {
   if (!silent) document.getElementById('api-key-input').value = '';
 }
 function saveAiConfig() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key || key.includes('•')) { alert('Pega tu API key primero'); return; }
-  localStorage.setItem('sd_provider', _pendingProvider);
-  localStorage.setItem('sd_apikey', key);
-  if (_pendingProvider === 'openrouter') localStorage.setItem('sd_model', document.getElementById('model-input').value.trim());
-  document.getElementById('api-key-input').value = '••••••••••••••••';
-  document.getElementById('ai-config-status').textContent = '✓ Configurado';
-  document.getElementById('ai-config-status').className = 'ai-status ok';
-  const alert = document.getElementById('ai-alert');
-  if (alert) alert.style.display = 'none';
-  alert('✅ Configuración guardada correctamente.');
+  (async function(){
+    const keyEl = document.getElementById('api-key-input');
+    const key = keyEl.value.trim();
+    if (!key || key.includes('•')) { alert('Pega tu API key primero'); return; }
+    const provider = _pendingProvider;
+    // For Google Gemini we'll try to validate the key by listing models
+    let ok = true; let errMsg = '';
+    if (provider === 'gemini') {
+      try {
+        const test = await testAiKey(true);
+        if (!test) { ok = false; errMsg = 'La clave no parece válida o no tiene permisos.'; }
+      } catch(e) { ok = false; errMsg = e.message || String(e); }
+    }
+    if (!ok) {
+      if (!confirm(`Error comprobando la clave: ${errMsg}\n¿Deseas guardar de todos modos?`)) return;
+    }
+    localStorage.setItem('sd_provider', provider);
+    localStorage.setItem('sd_apikey', key);
+    if (provider === 'openrouter') localStorage.setItem('sd_model', document.getElementById('model-input').value.trim());
+    keyEl.value = '••••••••••••••••';
+    document.getElementById('ai-config-status').textContent = '✓ Configurado';
+    document.getElementById('ai-config-status').className = 'ai-status ok';
+    const alertEl = document.getElementById('ai-alert');
+    if (alertEl) alertEl.style.display = 'none';
+    alert('✅ Configuración guardada correctamente.');
+  })();
+}
+
+async function testAiKey(showAlerts) {
+  const provider = _pendingProvider || localStorage.getItem('sd_provider') || 'gemini';
+  const key = (document.getElementById('api-key-input').value.trim()) || localStorage.getItem('sd_apikey') || '';
+  if (!key) { if (showAlerts) alert('No hay API key para probar'); return false; }
+  try {
+    if (provider === 'gemini') {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
+      const res = await fetch(url, { method: 'GET' });
+      if (!res.ok) {
+        const txt = await res.text();
+        if (showAlerts) alert(`Error al probar Gemini: ${res.status} — ${txt}`);
+        document.getElementById('ai-config-status').textContent = 'Error';
+        document.getElementById('ai-config-status').className = 'ai-status error';
+        return false;
+      }
+      const data = await res.json();
+      // If we got a models list, it's ok
+      if (Array.isArray(data.models) || data.model) {
+        if (showAlerts) alert('✅ Conexión con Gemini OK');
+        document.getElementById('ai-config-status').textContent = '✓ Configurado';
+        document.getElementById('ai-config-status').className = 'ai-status ok';
+        return true;
+      }
+      if (showAlerts) alert('Respuesta inesperada al probar Gemini.');
+      return false;
+    }
+    // Generic check for providers with header-based auth (best-effort)
+    const p = AI_PROVIDERS[provider];
+    if (p && p.headers) {
+      const url = p.endpoint();
+      const headers = p.headers(key);
+      const body = p.buildBody('Comprobación de conexión - mensaje corto');
+      const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (!res.ok) {
+        const txt = await res.text();
+        if (showAlerts) alert(`Error al probar ${p.name}: ${res.status} — ${txt}`);
+        document.getElementById('ai-config-status').textContent = 'Error';
+        document.getElementById('ai-config-status').className = 'ai-status error';
+        return false;
+      }
+      if (showAlerts) alert(`✅ Conexión con ${p.name} OK`);
+      document.getElementById('ai-config-status').textContent = '✓ Configurado';
+      document.getElementById('ai-config-status').className = 'ai-status ok';
+      return true;
+    }
+    if (showAlerts) alert('No hay una prueba automática disponible para este proveedor.');
+    return true;
+  } catch(e) {
+    if (showAlerts) alert('Error comprobando la clave: '+(e.message||e));
+    document.getElementById('ai-config-status').textContent = 'Error';
+    document.getElementById('ai-config-status').className = 'ai-status error';
+    return false;
+  }
+}
+
+function clearAiKey() {
+  if (!confirm('Borrar la API key guardada y configuración local?')) return;
+  localStorage.removeItem('sd_apikey');
+  localStorage.removeItem('sd_provider');
+  localStorage.removeItem('sd_model');
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('ai-config-status').textContent = 'Sin configurar';
+  document.getElementById('ai-config-status').className = 'ai-status none';
+  const alertEl = document.getElementById('ai-alert'); if (alertEl) alertEl.style.display = 'flex';
+  alert('Clave borrada localmente. Si la publicaste en un chat, rótala en la consola del proveedor.');
 }
 function exportData() {
   const data = { clients:S.clients, events:S.events, ideas:S.ideas, checklistState:S.checklistState };
