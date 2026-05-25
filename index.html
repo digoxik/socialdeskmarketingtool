@@ -689,12 +689,18 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
 // ============================================================
 // AI ENGINE — Adaptador multi-proveedor
 // ============================================================
+function normalizeGeminiModelName(raw) {
+  if (!raw) return '';
+  const cleaned = raw.toString().trim();
+  return cleaned.replace(/^models\//i, '');
+}
+
 const AI_PROVIDERS = {
   gemini: {
     name: 'Google Gemini Flash',
     endpoint: async (key) => {
       // Prefer an explicit model stored in localStorage (sd_model_gemini or sd_model)
-      const stored = localStorage.getItem('sd_model_gemini') || localStorage.getItem('sd_model') || '';
+      const stored = normalizeGeminiModelName(localStorage.getItem('sd_model_gemini') || localStorage.getItem('sd_model') || '');
       if (stored) return `https://generativelanguage.googleapis.com/v1beta/models/${stored}:generateContent?key=${encodeURIComponent(key)}`;
       // Fall back to listing models and pick a Gemini-capable one
       try {
@@ -702,15 +708,17 @@ const AI_PROVIDERS = {
         if (!res.ok) throw new Error('No permission to list models or invalid key');
         const data = await res.json();
         const list = data.models || [];
-        // Prefer names containing 'gemini' and not embeddings
+        const geminiModels = list
+          .map(m => normalizeGeminiModelName(m.name || m.model || ''))
+          .filter(n => n && n.toLowerCase().includes('gemini') && !n.toLowerCase().includes('embed'));
+        const prefer = ['gemini-flash-latest', 'gemini-flash', 'gemini-1.5-flash', 'gemini-1.0', 'gemini'];
         let pick = '';
-        for (const m of list) {
-          const n = (m.name || m.model || '').toString();
-          if (!n) continue;
-          const low = n.toLowerCase();
-          if (low.includes('gemini') && !low.includes('embed')) { pick = n; break; }
+        for (const candidate of prefer) {
+          pick = geminiModels.find(n => n.toLowerCase() === candidate);
+          if (pick) break;
         }
-        if (!pick && list.length) pick = list[0].name || list[0].model || list[0];
+        if (!pick) pick = geminiModels.find(n => n.toLowerCase().includes('gemini-flash')) || geminiModels[0] || '';
+        if (!pick && list.length) pick = normalizeGeminiModelName(list[0].name || list[0].model || list[0]);
         if (!pick) throw new Error('No models available');
         // remember the selected model for future calls
         localStorage.setItem('sd_model_gemini', pick);
@@ -792,7 +800,11 @@ function loadAiConfig() {
   }
   const modelDisplay = document.getElementById('ai-model-display');
   if (modelDisplay) {
-    const modelName = provider === 'gemini' ? localStorage.getItem('sd_model_gemini') || '' : provider === 'openrouter' ? localStorage.getItem('sd_model') || '' : '';
+    const modelName = provider === 'gemini'
+      ? normalizeGeminiModelName(localStorage.getItem('sd_model_gemini') || '')
+      : provider === 'openrouter'
+      ? localStorage.getItem('sd_model') || ''
+      : '';
     modelDisplay.textContent = modelName ? `Modelo: ${modelName}` : '';
   }
 }
