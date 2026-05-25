@@ -220,10 +220,6 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
       Brief Visual
     </div>
-    <div class="nav-item" onclick="goTo('ideas')">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-      Banco de Ideas <span class="badge" id="ideas-count">0</span>
-    </div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Configuración</div>
@@ -648,7 +644,15 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Tono de voz</label>
-        <select id="c-tone"><option>Informal y cercano</option><option>Profesional y serio</option><option>Poético y evocador</option><option>Divertido y desenfadado</option><option>Elegante y refinado</option><option>Coloquial y energético</option></select>
+        <div class="net-pills" id="c-tone-opts" style="margin-top:4px">
+          <span class="tone-btn" data-tone="Informal y cercano" onclick="toggleClientTone(this)">Informal y cercano</span>
+          <span class="tone-btn" data-tone="Profesional y serio" onclick="toggleClientTone(this)">Profesional y serio</span>
+          <span class="tone-btn" data-tone="Poético y evocador" onclick="toggleClientTone(this)">Poético y evocador</span>
+          <span class="tone-btn" data-tone="Divertido y desenfadado" onclick="toggleClientTone(this)">Divertido y desenfadado</span>
+          <span class="tone-btn" data-tone="Elegante y refinado" onclick="toggleClientTone(this)">Elegante y refinado</span>
+          <span class="tone-btn" data-tone="Coloquial y energético" onclick="toggleClientTone(this)">Coloquial y energético</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Selecciona uno o varios tonos para este cliente.</div>
       </div>
       <div class="form-group"><label>Frecuencia</label>
         <select id="c-freq"><option>Diario</option><option>3-4 veces por semana</option><option>2-3 veces por semana</option><option>Semanal</option></select>
@@ -1028,7 +1032,7 @@ function renderClients() {
       <div class="client-card-top">
         <div class="client-card-name">${c.name}</div>
         <div class="client-card-handle">${c.handle||''} · ${c.sector||''}</div>
-        <div class="client-card-tags">${(c.networks||[]).map(n=>`<span class="tag">${n}</span>`).join('')}<span class="tag accent">${c.tone}</span></div>
+        <div class="client-card-tags">${(c.networks||[]).map(n=>`<span class="tag">${n}</span>`).join('')}${Array.isArray(c.tone)?c.tone.map(t=>`<span class="tag accent">${t}</span>`).join(''):`<span class="tag accent">${c.tone}</span>`}</div>
         ${c.notes?`<div style="font-size:12px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${c.notes}</div>`:''}
       </div>
       <div class="client-card-bottom">
@@ -1062,6 +1066,7 @@ function clientTab(tab, el) {
   if (tab==='ideas' && S.activeClient) renderClientIdeas(S.activeClient);
 }
 function renderClientHeader(c) {
+  const clientToneText = Array.isArray(c.tone)?c.tone.join(', '):c.tone;
   document.getElementById('client-detail-header').innerHTML = `
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:14px">
@@ -1072,6 +1077,7 @@ function renderClientHeader(c) {
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       ${c.web?`<span class="tag">🌐 ${c.web}</span>`:''}
+      ${clientToneText?`<span class="tag accent">${clientToneText}</span>`:''}
       ${(c.networks||[]).map(n=>`<span class="tag">${n}</span>`).join('')}
       <span class="tag accent">${c.tone}</span>
       ${c.freq?`<span class="tag">${c.freq}</span>`:''}
@@ -1079,9 +1085,10 @@ function renderClientHeader(c) {
 }
 function renderClientInfo(c) {
   const row = (l,v) => v?`<div style="display:flex;gap:8px;margin-bottom:8px"><span style="font-size:12px;color:var(--muted);min-width:100px">${l}</span><span style="font-size:13px">${v}</span></div>`:''
+  const clientToneText = Array.isArray(c.tone)?c.tone.join(', '):c.tone;
   document.getElementById('client-info-body').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="card">${row('Tono de voz',c.tone)}${row('Frecuencia',c.freq)}${row('Colores',c.colors)}${row('Hashtags fijos',c.hashtags)}${row('Web',c.web)}</div>
+      <div class="card">${row('Tono de voz',clientToneText)}${row('Frecuencia',c.freq)}${row('Colores',c.colors)}${row('Hashtags fijos',c.hashtags)}${row('Web',c.web)}</div>
       <div class="card"><div style="font-size:13px;line-height:1.7;color:${c.notes?'var(--text)':'var(--muted)'}">${c.notes||'Sin notas adicionales.'}</div></div>
     </div>`;
 }
@@ -1261,17 +1268,29 @@ function resetChecklist(){if(!confirm('¿Reiniciar checklist?'))return;const c=S
 // ============================================================
 document.querySelectorAll('#copy-net-pills .net-pill').forEach(p=>p.addEventListener('click',function(){document.querySelectorAll('#copy-net-pills .net-pill').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
 document.querySelectorAll('#copy-format-opts .format-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#copy-format-opts .format-btn').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
-document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');}));
+document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(b=>b.addEventListener('click',function(){
+  if (this.dataset.tone==='auto') {
+    document.querySelectorAll('#copy-tone-opts .tone-btn').forEach(x=>x.classList.remove('selected'));
+    this.classList.add('selected');
+    return;
+  }
+  this.classList.toggle('selected');
+  document.querySelector('#copy-tone-opts .tone-btn[data-tone="auto"]').classList.remove('selected');
+  if (![...document.querySelectorAll('#copy-tone-opts .tone-btn.selected')].some(x=>x.dataset.tone!=='auto')) {
+    document.querySelector('#copy-tone-opts .tone-btn[data-tone="auto"]').classList.add('selected');
+  }
+}));
 async function generateCopy() {
   const cName=document.getElementById('copy-client').value; const client=S.clients.find(c=>c.name===cName);
   const network=document.querySelector('#copy-net-pills .net-pill.selected')?.dataset.net||'Instagram';
   const format=document.querySelector('#copy-format-opts .format-btn.selected')?.dataset.fmt||'Post';
-  const toneO=document.querySelector('#copy-tone-opts .tone-btn.selected')?.dataset.tone;
-  const tone=(toneO&&toneO!=='auto')?toneO:(client?.tone||'cercano');
+  const selectedTones=[...document.querySelectorAll('#copy-tone-opts .tone-btn.selected')].map(b=>b.dataset.tone).filter(t=>t&&t!=='auto');
+  const tone=selectedTones.length ? selectedTones.join(' + ') : (client?.tone ? (Array.isArray(client.tone)?client.tone.join(', '):client.tone) : 'cercano');
   const prompt=document.getElementById('copy-prompt').value.trim(); if(!prompt){alert('Describe el post');return;}
   const out=document.getElementById('copy-output'); out.textContent='Generando...'; out.classList.remove('placeholder');
   document.getElementById('copy-actions').style.display='none'; document.getElementById('hashtag-actions').style.display='none';
-  const cCtx=client?`Marca: ${client.name}\nSector: ${client.sector}\nTono: ${client.tone}\nHashtags: ${client.hashtags||''}\nNotas: ${client.notes||''}`:'';
+  const clientToneText = client?.tone ? (Array.isArray(client.tone) ? client.tone.join(', ') : client.tone) : '';
+  const cCtx=client?`Marca: ${client.name}\nSector: ${client.sector}\nTono: ${clientToneText}\nHashtags: ${client.hashtags||''}\nNotas: ${client.notes||''}`:'';
   try {
     const text = await callAI(`Caption para ${network} ${format}, tono ${tone}.\nContenido: ${prompt}\n${document.getElementById('copy-extra').value?`Adicional: ${document.getElementById('copy-extra').value}`:''}\n${cCtx}\nSOLO JSON sin markdown: {"caption":"...","hashtags":"..."}`);
     const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
@@ -1284,7 +1303,8 @@ async function generateBrief() {
   const cName=document.getElementById('brief-client').value; const client=S.clients.find(c=>c.name===cName);
   const prompt=document.getElementById('brief-prompt').value.trim(); if(!prompt){alert('Describe el contenido');return;}
   const out=document.getElementById('brief-output'); out.textContent='Generando...'; out.style.color='var(--muted)'; document.getElementById('brief-actions').style.display='none';
-  const cCtx=client?`Marca: ${client.name} | Tono: ${client.tone} | Colores: ${client.colors||'no especificados'}`:'';
+  const clientToneText = client?.tone ? (Array.isArray(client.tone) ? client.tone.join(', ') : client.tone) : '';
+  const cCtx=client?`Marca: ${client.name} | Tono: ${clientToneText} | Colores: ${client.colors||'no especificados'}`:'';
   try {
     const text = await callAI(`Director creativo. Brief visual:\n- Tipo: ${document.getElementById('brief-type').value}\n- Red: ${document.getElementById('brief-net').value}\n- Descripción: ${prompt}\n${document.getElementById('brief-ref').value?`- Mood: ${document.getElementById('brief-ref').value}`:''}\n${cCtx}\nIncluye: 📸 ENCUADRE, 💡 LUZ, 🎨 PALETA, 🏷️ PROPS, 📐 FORMATO, 🎯 OBJETIVO`);
     out.textContent=text; out.style.color='var(--text)'; document.getElementById('brief-actions').style.display='flex';
@@ -1318,16 +1338,17 @@ function deleteCurrentIdea(){const id=document.getElementById('idea-detail-modal
 // ============================================================
 function openClientModal(editId) {
   S.editingClientId=editId||null;
-  if(editId){const c=S.clients.find(x=>x.id===editId);document.getElementById('client-modal-title').textContent='Editar cliente';document.getElementById('c-name').value=c.name;document.getElementById('c-handle').value=c.handle||'';document.getElementById('c-sector').value=c.sector||'';document.getElementById('c-web').value=c.web||'';document.getElementById('c-tone').value=c.tone;document.getElementById('c-freq').value=c.freq||'3-4 veces por semana';document.getElementById('c-colors').value=c.colors||'';document.getElementById('c-hashtags').value=c.hashtags||'';document.getElementById('c-notes').value=c.notes||'';document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.toggle('selected',(c.networks||[]).includes(p.dataset.net)));}
-  else{document.getElementById('client-modal-title').textContent='Nuevo cliente';['c-name','c-handle','c-sector','c-web','c-colors','c-hashtags','c-notes'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.remove('selected'));}
+  if(editId){const c=S.clients.find(x=>x.id===editId);document.getElementById('client-modal-title').textContent='Editar cliente';document.getElementById('c-name').value=c.name;document.getElementById('c-handle').value=c.handle||'';document.getElementById('c-sector').value=c.sector||'';document.getElementById('c-web').value=c.web||'';document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.toggle('selected',(Array.isArray(c.tone)?c.tone:[c.tone]).includes(p.dataset.tone)));document.getElementById('c-freq').value=c.freq||'3-4 veces por semana';document.getElementById('c-colors').value=c.colors||'';document.getElementById('c-hashtags').value=c.hashtags||'';document.getElementById('c-notes').value=c.notes||'';document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.toggle('selected',(c.networks||[]).includes(p.dataset.net)));}
+  else{document.getElementById('client-modal-title').textContent='Nuevo cliente';['c-name','c-handle','c-sector','c-web','c-colors','c-hashtags','c-notes'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#c-nets .net-pill').forEach(p=>p.classList.remove('selected'));document.querySelectorAll('#c-tone-opts .tone-btn').forEach(p=>p.classList.remove('selected'));}
   document.getElementById('client-modal').classList.add('open');
 }
 function toggleNet(el){el.classList.toggle('selected');}
 function saveClient() {
   const name=document.getElementById('c-name').value.trim(); if(!name){alert('Nombre obligatorio');return;}
   const nets=[...document.querySelectorAll('#c-nets .net-pill.selected')].map(p=>p.dataset.net);
+  const tones=[...document.querySelectorAll('#c-tone-opts .tone-btn.selected')].map(p=>p.dataset.tone);
   const existing=S.editingClientId?S.clients.find(c=>c.id===S.editingClientId):null;
-  const client={id:S.editingClientId||'c_'+Date.now(),name,handle:document.getElementById('c-handle').value.trim(),sector:document.getElementById('c-sector').value.trim(),web:document.getElementById('c-web').value.trim(),networks:nets,tone:document.getElementById('c-tone').value,freq:document.getElementById('c-freq').value,colors:document.getElementById('c-colors').value.trim(),hashtags:document.getElementById('c-hashtags').value.trim(),notes:document.getElementById('c-notes').value.trim(),seo:existing?.seo||{}};
+  const client={id:S.editingClientId||'c_'+Date.now(),name,handle:document.getElementById('c-handle').value.trim(),sector:document.getElementById('c-sector').value.trim(),web:document.getElementById('c-web').value.trim(),networks:nets,tone:tones.length?tones:['Informal y cercano'],freq:document.getElementById('c-freq').value,colors:document.getElementById('c-colors').value.trim(),hashtags:document.getElementById('c-hashtags').value.trim(),notes:document.getElementById('c-notes').value.trim(),seo:existing?.seo||{}};
   if(S.editingClientId)S.clients=S.clients.map(c=>c.id===S.editingClientId?client:c);else S.clients.push(client);
   saveState();closeModal('client-modal');refreshAll();if(S.activeClient&&S.activeClient.id===client.id){S.activeClient=client;renderClientHeader(client);renderClientInfo(client);}
 }
