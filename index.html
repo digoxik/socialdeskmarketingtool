@@ -117,7 +117,8 @@ label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
 .kw-diff.low{background:rgba(95,184,154,.2);color:var(--accent3)}
 @media (max-width: 900px) {
   #app{flex-direction:column}
-  #sidebar{width:100%;min-width:unset;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--border);padding-bottom:0}
+  #sidebar{width:100%;min-width:unset;height:auto;position:absolute;top:56px;left:0;right:0;z-index:99;border-right:none;border-bottom:none;padding:14px 0;background:var(--bg2);box-shadow:0 24px 60px rgba(0,0,0,.4);max-height:calc(100vh - 56px);overflow-y:auto}
+  #sidebar .logo{display:none}
   #sidebar.collapsed{display:none}
   .mobile-topbar{display:flex}
   #main{padding:16px}
